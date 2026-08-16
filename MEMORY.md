@@ -2,13 +2,13 @@
 
 ## 🏗️ Active Phase & Goal
 
-**Current phase:** Phase 1 — Foundation
+**Current phase:** Phase 2 — Must-have MVP Features (Starting: Creative Canvas & Persistence)
 
-**Goal:** Establish a stable TrueNorth web application foundation with the approved visual language, landing page, journal route/shell, Tailwind styling, GitHub version control, and responsive desktop/mobile rendering.
+**Goal:** Implement the creative journal canvas layer (Fabric.js text,Pen, Eraser, Stickers picker) and local persistence (autosave / Zustand / IndexedDB key-value).
 
-**Current state:** Project setup — nothing built yet.
+**Current state:** Phase 1 — Foundation is complete. The landing page and mock journal shell load reliably and compile cleanly. Local Git is set up and pushed to remote origin.
 
-**Next milestone:** A beautiful but non-functional journal shell loads reliably on desktop and mobile.
+**Next milestone:** Set up the Zustand store, implement the Fabric.js canvas layer, and wire up debounced local persistence.
 
 ## Product North Star
 

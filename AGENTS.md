@@ -30,7 +30,7 @@ The MVP is a responsive, local-first web application. It must feel like a beauti
 - Debugging/explanations: ChatGPT
 - Supporting tools: Gemini, Cursor, VS Code, v0, Replit
 
-**Versions:** The source Technical Design does not pin exact package versions. Do not invent versions. Record the actual versions installed during Foundation in the project documentation.
+**Versions:** Node.js `v24.19.0`, NPM `v11.17.0`, Next.js `16.3.1`, React `19.2.8`, Tailwind CSS `v4` (`^4`), ESLint `v9` (`^9`, `eslint-config-next: 16.3.1`), TypeScript `v5` (`^5`), `lucide-react` (`^1.31.0`).
 
 ## How I Should Think
 
