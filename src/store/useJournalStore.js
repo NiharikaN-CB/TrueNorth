@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { subscribeWithSelector } from 'zustand/middleware'
+import { get as idbGet, set as idbSet } from 'idb-keyval'
 
 export const PAPER_TEXTURES = {
   linen: { name: 'Soft Linen', bg: '#FFFDF9', borderColor: '#EBE3D7' },
@@ -14,85 +16,187 @@ export const WASHI_TAPES = [
   { id: 'gold', name: 'Gold Foil Accent', color: '#E3C88D', pattern: 'solid' },
 ]
 
-export const useJournalStore = create((set, get) => ({
-  // View state: 'landing' | 'journal'
-  currentView: 'landing',
-  setView: (view) => set({ currentView: view }),
-  openJournal: () => set({ currentView: 'journal' }),
-  openLanding: () => set({ currentView: 'landing' }),
+const STORAGE_KEY = 'truenorth-journal-state'
+const AUTOSAVE_DEBOUNCE_MS = 600
 
-  // Canvas paper texture state
-  paperTexture: 'linen',
-  setPaperTexture: (textureKey) => set({ paperTexture: textureKey }),
+function createEmptyPage() {
+  return {
+    id: `page-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    title: 'Untitled Entry',
+    createdAt: new Date().toISOString(),
+    canvasData: null,
+    notesText: '',
+    tags: [],
+    mood: null,
+    reflection: null,
+  }
+}
 
-  // Canvas tool state
-  activeTool: 'pen', // 'pen' | 'text' | 'eraser' | 'washi' | 'select'
-  setActiveTool: (tool) => set({ activeTool: tool }),
+export const useJournalStore = create(
+  subscribeWithSelector((set, get) => ({
+    // View state: 'landing' | 'journal'
+    currentView: 'landing',
+    setView: (view) => set({ currentView: view }),
+    openJournal: () => set({ currentView: 'journal' }),
+    openLanding: () => set({ currentView: 'landing' }),
 
-  brushColor: '#4A5568',
-  setBrushColor: (color) => set({ brushColor: color }),
+    // Canvas paper texture state
+    paperTexture: 'linen',
+    setPaperTexture: (textureKey) => set({ paperTexture: textureKey }),
 
-  brushSize: 3,
-  setBrushSize: (size) => set({ brushSize: size }),
+    // Canvas tool state
+    activeTool: 'pen', // 'pen' | 'text' | 'eraser' | 'washi' | 'select'
+    setActiveTool: (tool) => set({ activeTool: tool }),
 
-  // Selected Washi Tape & Sticker
-  selectedWashi: WASHI_TAPES[0],
-  setSelectedWashi: (washi) => set({ selectedWashi: washi }),
-  selectedSticker: null,
-  setSelectedSticker: (sticker) => set({ selectedSticker: sticker }),
+    brushColor: '#4A5568',
+    setBrushColor: (color) => set({ brushColor: color }),
 
-  // Journal pages state
-  currentPageId: 'page-1',
-  pages: [
-    {
-      id: 'page-1',
-      title: 'Entry — Today',
-      createdAt: new Date().toISOString(),
-      canvasData: null,
-      notesText: '',
-      tags: ['unsettled', 'processing'],
-      mood: 'cloudy',
+    brushSize: 3,
+    setBrushSize: (size) => set({ brushSize: size }),
+
+    // Selected Washi Tape & Sticker
+    selectedWashi: WASHI_TAPES[0],
+    setSelectedWashi: (washi) => set({ selectedWashi: washi }),
+    selectedSticker: null,
+    setSelectedSticker: (sticker) => set({ selectedSticker: sticker }),
+
+    // Journal pages state
+    currentPageId: 'page-1',
+    pages: [
+      {
+        id: 'page-1',
+        title: 'Untitled Entry',
+        createdAt: new Date().toISOString(),
+        canvasData: null,
+        notesText: '',
+        tags: [],
+        mood: null,
+        reflection: null,
+      },
+    ],
+
+    // Pattern Memory Timeline — still seeded/mock data; replaced with real
+    // derivation from completed reflections in a later step.
+    patterns: [
+      {
+        id: 'pattern-1',
+        date: 'Aug 14',
+        theme: 'Uncertain communication',
+        observation: 'Felt unsettled when texts were left unanswered for > 4 hours.',
+        insight: 'You prioritize responsiveness & clear expectations.',
+      },
+      {
+        id: 'pattern-2',
+        date: 'Aug 10',
+        theme: 'Boundary clarity',
+        observation: 'Felt proud for expressing your availability preference.',
+        insight: 'Standing firm in your needs brought peace.',
+      },
+    ],
+
+    // Persistence state
+    hasHydrated: false,
+    autosaveStatus: 'saved', // 'saving' | 'saved' | 'error'
+
+    // Loads previously saved journal state from IndexedDB, if any. Safe to
+    // call more than once (e.g. React StrictMode's double-invoked effects).
+    hydrate: async () => {
+      if (get().hasHydrated) return
+      try {
+        const stored = await idbGet(STORAGE_KEY)
+        if (stored && typeof stored === 'object' && Array.isArray(stored.pages) && stored.pages.length > 0) {
+          const currentPageId =
+            stored.currentPageId && stored.pages.some((p) => p.id === stored.currentPageId)
+              ? stored.currentPageId
+              : stored.pages[0].id
+          set({
+            pages: stored.pages,
+            currentPageId,
+            patterns: Array.isArray(stored.patterns) ? stored.patterns : get().patterns,
+            autosaveStatus: 'saved',
+          })
+        }
+      } catch (err) {
+        console.error('Failed to load journal data from IndexedDB:', err)
+        set({ autosaveStatus: 'error' })
+      } finally {
+        set({ hasHydrated: true })
+      }
     },
-  ],
 
-  // Pattern Memory Timeline
-  patterns: [
-    {
-      id: 'pattern-1',
-      date: 'Aug 14',
-      theme: 'Uncertain communication',
-      observation: 'Felt unsettled when texts were left unanswered for > 4 hours.',
-      insight: 'You prioritize responsiveness & clear expectations.',
+    // AI Reflection state — reflection content itself lives on the current page
+    // (see setReflection) so it persists and stays scoped to the right entry.
+    isReflecting: false,
+    setIsReflecting: (isReflecting) => set({ isReflecting }),
+    setReflection: (reflection) =>
+      set((state) => ({
+        pages: state.pages.map((p) => (p.id === state.currentPageId ? { ...p, reflection } : p)),
+        isReflecting: false,
+      })),
+
+    // Page content actions
+    updateCurrentPageData: (canvasJson, text = '') => {
+      const { currentPageId, pages } = get()
+      set({
+        pages: pages.map((p) =>
+          p.id === currentPageId ? { ...p, canvasData: canvasJson, notesText: text } : p
+        ),
+      })
     },
-    {
-      id: 'pattern-2',
-      date: 'Aug 10',
-      theme: 'Boundary clarity',
-      observation: 'Felt proud for expressing your availability preference.',
-      insight: 'Standing firm in your needs brought peace.',
+
+    deletePage: (pageId) => {
+      set((state) => {
+        const remaining = state.pages.filter((p) => p.id !== pageId)
+        if (remaining.length === 0) {
+          const freshPage = createEmptyPage()
+          return { pages: [freshPage], currentPageId: freshPage.id }
+        }
+        return {
+          pages: remaining,
+          currentPageId: state.currentPageId === pageId ? remaining[0].id : state.currentPageId,
+        }
+      })
     },
-  ],
 
-  // Storage / Autosave state
-  autosaveStatus: 'saved',
-  setAutosaveStatus: (status) => set({ autosaveStatus: status }),
+    clearAllData: async () => {
+      const freshPage = createEmptyPage()
+      set({ pages: [freshPage], currentPageId: freshPage.id, patterns: [], autosaveStatus: 'saving' })
+      try {
+        await idbSet(STORAGE_KEY, { pages: [freshPage], currentPageId: freshPage.id, patterns: [] })
+        set({ autosaveStatus: 'saved' })
+      } catch (err) {
+        console.error('Failed to clear journal data in IndexedDB:', err)
+        set({ autosaveStatus: 'error' })
+      }
+    },
+  }))
+)
 
-  // AI Reflection state
-  reflection: null,
-  isReflecting: false,
-  setReflection: (reflection) => set({ reflection, isReflecting: false }),
-  setIsReflecting: (isReflecting) => set({ isReflecting }),
+// Real debounced autosave. Fires only when the durable slice of state
+// (pages / currentPageId / patterns) actually changes, and only after the
+// initial hydrate() has completed — so we never overwrite saved data with
+// the transient default state that exists before hydration runs.
+let autosaveTimer = null
 
-  // Helper actions
-  updateCurrentPageData: (canvasJson, text = '') => {
-    const { currentPageId, pages } = get()
-    const updatedPages = pages.map((p) =>
-      p.id === currentPageId ? { ...p, canvasData: canvasJson, notesText: text } : p
-    )
-    set({ pages: updatedPages, autosaveStatus: 'saving' })
+useJournalStore.subscribe(
+  (state) => ({ pages: state.pages, currentPageId: state.currentPageId, patterns: state.patterns }),
+  (curr) => {
+    if (!useJournalStore.getState().hasHydrated) return
 
-    setTimeout(() => {
-      set({ autosaveStatus: 'saved' })
-    }, 600)
+    useJournalStore.setState({ autosaveStatus: 'saving' })
+
+    if (autosaveTimer) clearTimeout(autosaveTimer)
+    autosaveTimer = setTimeout(async () => {
+      try {
+        await idbSet(STORAGE_KEY, curr)
+        useJournalStore.setState({ autosaveStatus: 'saved' })
+      } catch (err) {
+        console.error('Autosave to IndexedDB failed:', err)
+        useJournalStore.setState({ autosaveStatus: 'error' })
+      }
+    }, AUTOSAVE_DEBOUNCE_MS)
   },
-}))
+  {
+    equalityFn: (a, b) => a.pages === b.pages && a.currentPageId === b.currentPageId && a.patterns === b.patterns,
+  }
+)

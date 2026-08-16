@@ -3,7 +3,9 @@ import { useJournalStore } from '../../store/useJournalStore'
 import { Sparkles, Heart, Shield, AlertCircle } from 'lucide-react'
 
 export default function ReflectionPanel({ journalText }) {
-  const reflection = useJournalStore((state) => state.reflection)
+  const reflection = useJournalStore(
+    (state) => state.pages.find((p) => p.id === state.currentPageId)?.reflection ?? null
+  )
   const isReflecting = useJournalStore((state) => state.isReflecting)
   const setIsReflecting = useJournalStore((state) => state.setIsReflecting)
   const setReflection = useJournalStore((state) => state.setReflection)

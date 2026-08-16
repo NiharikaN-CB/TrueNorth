@@ -5,6 +5,8 @@ import { useJournalStore, PAPER_TEXTURES } from '../../store/useJournalStore'
 const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref) {
   const canvasRef = useRef(null)
   const fabricCanvasRef = useRef(null)
+  const loadedPageIdRef = useRef(null)
+  const notesTextRef = useRef('')
 
   const activeTool = useJournalStore((state) => state.activeTool)
   const brushColor = useJournalStore((state) => state.brushColor)
@@ -12,10 +14,14 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
   const paperTextureKey = useJournalStore((state) => state.paperTexture)
   const paperTexture = PAPER_TEXTURES[paperTextureKey] || PAPER_TEXTURES.linen
   const updateCurrentPageData = useJournalStore((state) => state.updateCurrentPageData)
+  const hasHydrated = useJournalStore((state) => state.hasHydrated)
+  const currentPageId = useJournalStore((state) => state.currentPageId)
 
-  const [notesText, setNotesText] = useState(
-    "He said he'd text after work... it's been six hours. I keep re-reading the last message like it'll say something new."
-  )
+  const [notesText, setNotesText] = useState('')
+
+  useEffect(() => {
+    notesTextRef.current = notesText
+  }, [notesText])
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -35,16 +41,62 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
     fabricCanvasRef.current = initCanvas
 
     initCanvas.on('path:created', () => {
+      const json = initCanvas.toJSON()
       if (onCanvasChange) {
-        onCanvasChange(initCanvas.toJSON())
+        onCanvasChange(json)
       }
-      updateCurrentPageData(initCanvas.toJSON(), notesText)
+      updateCurrentPageData(json, notesTextRef.current)
     })
 
     return () => {
       initCanvas.dispose()
     }
   }, [])
+
+  // Load this page's saved canvas + notes whenever the active page changes
+  // (initial hydration, page delete/switch), guarded so it only re-runs when
+  // the page actually changes rather than on every unrelated re-render. The
+  // mount effect above always creates a blank canvas first since hydration
+  // is async and can't block first paint.
+  useEffect(() => {
+    if (!hasHydrated || loadedPageIdRef.current === currentPageId) return
+    loadedPageIdRef.current = currentPageId
+
+    const { pages } = useJournalStore.getState()
+    const page = pages.find((p) => p.id === currentPageId)
+    if (!page) return
+
+    setNotesText(page.notesText || '')
+
+    const canvas = fabricCanvasRef.current
+    if (!canvas) return
+
+    // Guards the async loadFromJSON against React StrictMode's dev-only
+    // double-mount, which can dispose this canvas instance before the
+    // promise resolves.
+    let cancelled = false
+
+    if (page.canvasData) {
+      canvas
+        .loadFromJSON(page.canvasData)
+        .then(() => {
+          if (cancelled) return
+          canvas.renderAll()
+        })
+        .catch((err) => {
+          if (cancelled) return
+          console.error('Failed to restore saved canvas content:', err)
+        })
+    } else {
+      canvas.clear()
+      canvas.backgroundColor = paperTexture.bg
+      canvas.renderAll()
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [hasHydrated, currentPageId])
 
   useEffect(() => {
     const canvas = fabricCanvasRef.current
@@ -90,7 +142,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
       canvas.add(stickerText)
       canvas.setActiveObject(stickerText)
       canvas.renderAll()
-      updateCurrentPageData(canvas.toJSON(), notesText)
+      updateCurrentPageData(canvas.toJSON(), notesTextRef.current)
     },
     addWashiTape: (tape) => {
       const canvas = fabricCanvasRef.current
@@ -112,7 +164,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
       canvas.add(washi)
       canvas.setActiveObject(washi)
       canvas.renderAll()
-      updateCurrentPageData(canvas.toJSON(), notesText)
+      updateCurrentPageData(canvas.toJSON(), notesTextRef.current)
     },
     clearCanvas: () => {
       const canvas = fabricCanvasRef.current
@@ -120,6 +172,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
       canvas.clear()
       canvas.backgroundColor = paperTexture.bg
       canvas.renderAll()
+      updateCurrentPageData(canvas.toJSON(), notesTextRef.current)
     },
     getCanvasElement: () => canvasRef.current,
   }))

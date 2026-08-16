@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { useJournalStore } from '../../store/useJournalStore'
 import JournalCanvas from './JournalCanvas'
 import JournalToolbar from './JournalToolbar'
@@ -7,13 +7,18 @@ import ReflectionPanel from './ReflectionPanel'
 import AmbientSoundPlayer from './AmbientSoundPlayer'
 import PaperTexturePicker from './PaperTexturePicker'
 import PatternTimeline from './PatternTimeline'
-import { ArrowLeft, ShieldCheck, Download } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Download, Trash2, AlertTriangle } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
 export default function JournalWorkspace() {
   const openLanding = useJournalStore((state) => state.openLanding)
+  const hasHydrated = useJournalStore((state) => state.hasHydrated)
+  const currentPageId = useJournalStore((state) => state.currentPageId)
+  const deletePage = useJournalStore((state) => state.deletePage)
+  const clearAllData = useJournalStore((state) => state.clearAllData)
   const canvasComponentRef = useRef(null)
+  const [confirmAction, setConfirmAction] = useState(null) // null | 'deletePage' | 'clearAll'
 
   const handleAddSticker = (sticker) => {
     if (canvasComponentRef.current) {
@@ -49,6 +54,34 @@ export default function JournalWorkspace() {
     } catch (err) {
       console.error('Failed to export PDF:', err)
     }
+  }
+
+  const handleConfirmAction = () => {
+    if (confirmAction === 'deletePage') {
+      deletePage(currentPageId)
+    } else if (confirmAction === 'clearAll') {
+      clearAllData()
+    }
+    setConfirmAction(null)
+  }
+
+  if (!hasHydrated) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#FAF6F0',
+          color: '#8A7B70',
+          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontSize: '14px',
+        }}
+      >
+        Loading your journal…
+      </div>
+    )
   }
 
   return (
@@ -123,8 +156,94 @@ export default function JournalWorkspace() {
           >
             <ShieldCheck size={14} /> 100% Private
           </div>
+          <button
+            onClick={() => setConfirmAction('deletePage')}
+            title="Delete this page"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#A85B5B',
+              background: 'transparent',
+              border: '1px solid #EDE6DD',
+              padding: '4px 10px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+            }}
+          >
+            <Trash2 size={13} /> Delete Page
+          </button>
+          <button
+            onClick={() => setConfirmAction('clearAll')}
+            title="Permanently clear all journal data"
+            style={{
+              fontSize: '12px',
+              color: '#A85B5B',
+              background: 'transparent',
+              border: '1px solid #EDE6DD',
+              padding: '4px 10px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+            }}
+          >
+            Clear all data
+          </button>
         </div>
       </header>
+
+      {confirmAction && (
+        <div
+          style={{
+            maxWidth: '1240px',
+            margin: '0 auto',
+            padding: '14px 28px',
+            background: '#FDF2F2',
+            borderBottom: '1px solid #F3D6D6',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '14px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <AlertTriangle size={18} color="#B3413D" style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: '13px', color: '#7A2E2B', flex: 1, minWidth: '220px' }}>
+            {confirmAction === 'deletePage'
+              ? 'Delete this page? This cannot be undone.'
+              : 'Clear all journal data — every page, pattern, and reflection? This cannot be undone.'}
+          </span>
+          <button
+            onClick={() => setConfirmAction(null)}
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5C9C9',
+              color: '#7A2E2B',
+              borderRadius: '16px',
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirmAction}
+            style={{
+              background: '#B3413D',
+              border: 'none',
+              color: '#FFFFFF',
+              borderRadius: '16px',
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            {confirmAction === 'deletePage' ? 'Delete Page' : 'Clear Everything'}
+          </button>
+        </div>
+      )}
 
       {/* Main Workspace Grid */}
       <main
