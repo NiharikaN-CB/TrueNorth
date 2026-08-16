@@ -1,29 +1,63 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useJournalStore } from '../../store/useJournalStore'
-import { Sparkles, Heart, Shield, AlertCircle } from 'lucide-react'
+import { extractTextFromCanvasData } from '../../utils/canvasText'
+import { Sparkles, Heart, Compass, AlertCircle, Bookmark } from 'lucide-react'
 
-export default function ReflectionPanel({ journalText }) {
-  const reflection = useJournalStore(
-    (state) => state.pages.find((p) => p.id === state.currentPageId)?.reflection ?? null
-  )
+const MAX_TEXT_LENGTH = 10000
+const REQUEST_TIMEOUT_MS = 25000
+
+export default function ReflectionPanel() {
+  const currentPage = useJournalStore((state) => state.pages.find((p) => p.id === state.currentPageId))
+  const reflection = currentPage?.reflection ?? null
   const isReflecting = useJournalStore((state) => state.isReflecting)
   const setIsReflecting = useJournalStore((state) => state.setIsReflecting)
   const setReflection = useJournalStore((state) => state.setReflection)
+  const [reflectionError, setReflectionError] = useState(null)
 
   const handleReflect = async () => {
+    const notesText = (currentPage?.notesText || '').trim()
+    const canvasText = extractTextFromCanvasData(currentPage?.canvasData)
+    const combinedText = [notesText, canvasText].filter(Boolean).join('\n\n').trim()
+
+    if (!combinedText) {
+      setReflectionError("Write a little about how you're feeling before reflecting.")
+      return
+    }
+    if (combinedText.length > MAX_TEXT_LENGTH) {
+      setReflectionError(`Your entry is a bit long for reflection right now (max ${MAX_TEXT_LENGTH} characters).`)
+      return
+    }
+
+    setReflectionError(null)
     setIsReflecting(true)
 
-    // Simulate gentle AI reflection response with safe boundaries
-    setTimeout(() => {
-      setReflection({
-        summary:
-          "It sounds like the silence is creating a heavy silence inside you — leaving you waiting on someone else's timeline rather than standing comfortably in your own standard.",
-        feelings: ['unsettled', 'waiting', 'seeking clarity'],
-        gentleObservation:
-          'You may be noticing that inconsistency leaves you feeling anxious. It is valid to want clear communication in dating.',
-        tentativeNotice: null,
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+    try {
+      const response = await fetch('/api/reflect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: combinedText }),
+        signal: controller.signal,
       })
-    }, 1200)
+      const payload = await response.json().catch(() => null)
+
+      if (!response.ok || !payload) {
+        throw new Error(payload?.error || 'Something went wrong generating your reflection.')
+      }
+
+      setReflection(payload)
+    } catch (err) {
+      const message =
+        err.name === 'AbortError'
+          ? 'The reflection is taking longer than expected. Please try again.'
+          : err.message || 'Something went wrong. Please try again.'
+      setReflectionError(message)
+      setIsReflecting(false)
+    } finally {
+      clearTimeout(timeoutId)
+    }
   }
 
   return (
@@ -82,7 +116,25 @@ export default function ReflectionPanel({ journalText }) {
         </button>
       </div>
 
-      {!reflection && !isReflecting && (
+      {reflectionError && (
+        <div
+          style={{
+            marginBottom: '14px',
+            padding: '10px 14px',
+            background: '#FDF2F2',
+            border: '1px solid #F3D6D6',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '8px',
+          }}
+        >
+          <AlertCircle size={15} color="#B3413D" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <span style={{ fontSize: '12.5px', color: '#7A2E2B', lineHeight: '1.5' }}>{reflectionError}</span>
+        </div>
+      )}
+
+      {!reflection && !isReflecting && !reflectionError && (
         <p style={{ fontSize: '13px', color: '#8A7B70', lineHeight: '1.6', margin: 0 }}>
           When you feel ready, press <b>Reflect ✦</b>. TrueNorth will offer a calm, non-judgmental
           mirror to help process your thoughts without giving unsolicited advice or diagnoses.
@@ -104,7 +156,7 @@ export default function ReflectionPanel({ journalText }) {
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {reflection.feelings.map((feeling, idx) => (
+            {reflection.emotions.map((emotion, idx) => (
               <span
                 key={idx}
                 style={{
@@ -115,27 +167,122 @@ export default function ReflectionPanel({ journalText }) {
                   borderRadius: '12px',
                 }}
               >
-                #{feeling}
+                #{emotion}
               </span>
             ))}
           </div>
 
-          {reflection.gentleObservation && (
+          <div
+            style={{
+              display: 'flex',
+              gap: '10px',
+              alignItems: 'flex-start',
+              background: '#F6FAF7',
+              border: '1px solid #DDF0E5',
+              padding: '12px 14px',
+              borderRadius: '12px',
+              fontSize: '13px',
+              color: '#2C5741',
+            }}
+          >
+            <Heart size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+            <span>{reflection.gentleReflection}</span>
+          </div>
+
+          {reflection.patternObservation && (
             <div
               style={{
                 display: 'flex',
                 gap: '10px',
                 alignItems: 'flex-start',
-                background: '#F6FAF7',
-                border: '1px solid #DDF0E5',
+                background: '#EAF2F4',
+                border: '1px solid #D6E6EA',
                 padding: '12px 14px',
                 borderRadius: '12px',
                 fontSize: '13px',
-                color: '#2C5741',
+                color: '#3E5A61',
               }}
             >
-              <Heart size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
-              <span>{reflection.gentleObservation}</span>
+              <Bookmark size={15} style={{ marginTop: '2px', flexShrink: 0 }} />
+              <span style={{ fontStyle: 'italic' }}>{reflection.patternObservation}</span>
+            </div>
+          )}
+
+          {reflection.questions?.length > 0 && (
+            <div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: '#8A7B70',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  marginBottom: '8px',
+                }}
+              >
+                <Compass size={13} /> Questions to sit with
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {reflection.questions.map((q, idx) => (
+                  <li key={idx} style={{ fontSize: '13px', color: '#4A423C', lineHeight: '1.5' }}>
+                    {q}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div style={{ background: '#FDF6F0', border: '1px solid #F0E3D5', padding: '12px 14px', borderRadius: '12px' }}>
+            <div
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#A85843',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginBottom: '6px',
+              }}
+            >
+              Recovery & self-care
+            </div>
+            <span style={{ fontSize: '13px', color: '#4A423C', lineHeight: '1.5' }}>{reflection.recoverySuggestion}</span>
+          </div>
+
+          {reflection.redFlags?.length > 0 && (
+            <div
+              style={{
+                background: '#FFF8F0',
+                border: '1px solid #F0DFC8',
+                padding: '12px 14px',
+                borderRadius: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: '#9A6B2E',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                <AlertCircle size={13} /> Gentle things to notice
+              </div>
+              {reflection.redFlags.map((flag, idx) => (
+                <div key={idx} style={{ fontSize: '13px', color: '#4A423C', lineHeight: '1.5' }}>
+                  <div>{flag.observation}</div>
+                  <div style={{ fontSize: '12px', color: '#8A7B70', marginTop: '2px' }}>{flag.reason}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>
