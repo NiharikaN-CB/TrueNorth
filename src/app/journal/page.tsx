@@ -46,6 +46,43 @@ function extractTextFromCanvas(canvasJsonStr: string): string {
   return "";
 }
 
+export const CHECKLIST_ITEMS = {
+  "Feelings": [
+    { id: "feelings:anxious", label: "Anxious" },
+    { id: "feelings:excited", label: "Excited" },
+    { id: "feelings:drained", label: "Drained" },
+    { id: "feelings:unsettled", label: "Unsettled" },
+    { id: "feelings:hopeful", label: "Hopeful" },
+    { id: "feelings:confused", label: "Confused" }
+  ],
+  "Needs": [
+    { id: "needs:space", label: "Space" },
+    { id: "needs:clarity", label: "Clarity" },
+    { id: "needs:validation", label: "Validation" },
+    { id: "needs:reassurance", label: "Reassurance" },
+    { id: "needs:safety", label: "Emotional safety" }
+  ],
+  "What felt good": [
+    { id: "good:consistency", label: "Consistency" },
+    { id: "good:active_listening", label: "Active listening" },
+    { id: "good:clear_intentions", label: "Clear intentions" },
+    { id: "good:respect_space", label: "Respect for space" }
+  ],
+  "What felt uncomfortable": [
+    { id: "uncomfortable:inconsistency", label: "Inconsistency" },
+    { id: "uncomfortable:rushed_pace", label: "Rushed pace" },
+    { id: "uncomfortable:vague_answers", label: "Vague answers" },
+    { id: "uncomfortable:unsolicited_advice", label: "Unsolicited advice" }
+  ],
+  "Values": [
+    { id: "values:honesty", label: "Honesty" },
+    { id: "values:patience", label: "Patience" },
+    { id: "values:mutual_respect", label: "Mutual respect" },
+    { id: "values:safety", label: "Safety" }
+  ]
+} as const;
+
+
 export default function JournalPage() {
   const [selectedTool, setSelectedTool] = useState<string>("pen");
   const canvasRef = useRef<JournalCanvasRef>(null);
@@ -59,14 +96,21 @@ export default function JournalPage() {
   const [isReflecting, setIsReflecting] = useState(false);
   const [reflectionError, setReflectionError] = useState<string | null>(null);
 
+  // Optional checklist states
+  const [isChecklistOpen, setIsChecklistOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"Feelings" | "Needs" | "What felt good" | "What felt uncomfortable" | "Values">("Feelings");
+
   const {
     pages,
     currentPageIndex,
     patternLogs,
+    checklists,
     setPages,
     setCurrentPageIndex,
     setPatternLogs,
     addPatternLog,
+    setChecklists,
+    toggleChecklistItem,
     updatePageCanvas,
     createPage,
   } = useJournalStore();
@@ -76,25 +120,38 @@ export default function JournalPage() {
     interface StoredJournalState {
       pages?: string[];
       patternLogs?: PatternLog[];
+      checklists?: string[][];
     }
     const loadState = async () => {
       try {
         const stored = await get("truenorth-journal-state");
         const storedObj = stored as StoredJournalState;
         if (storedObj && typeof storedObj === "object" && Array.isArray(storedObj.pages)) {
-          setPages(storedObj.pages);
+          const restoredPages = storedObj.pages;
+          setPages(restoredPages);
           setPatternLogs(storedObj.patternLogs || []);
-          setReflections(new Array(storedObj.pages.length).fill(null));
+          setReflections(new Array(restoredPages.length).fill(null));
+
+          // Pad or truncate checklists array safely (creating independent array instances)
+          let restoredChecklists: string[][] = Array.from({ length: restoredPages.length }, () => []);
+          if (Array.isArray(storedObj.checklists)) {
+            restoredChecklists = Array.from({ length: restoredPages.length }, (_, idx) => {
+              return Array.isArray(storedObj.checklists?.[idx]) ? (storedObj.checklists?.[idx] as string[]) : [];
+            });
+          }
+          setChecklists(restoredChecklists);
         } else {
           setPages(["{}"]);
           setReflections([null]);
           setPatternLogs([]);
+          setChecklists([[]]);
         }
       } catch (err) {
         console.error("Failed to read IndexedDB:", err);
         setPages(["{}"]);
         setReflections([null]);
         setPatternLogs([]);
+        setChecklists([[]]);
         setAutosaveStatus("offline");
       } finally {
         setCurrentPageIndex(0); // Always default to Page 1 on reload
@@ -102,7 +159,7 @@ export default function JournalPage() {
       }
     };
     loadState();
-  }, [setPages, setCurrentPageIndex, setPatternLogs]);
+  }, [setPages, setCurrentPageIndex, setPatternLogs, setChecklists]);
 
   // Debounced Autosave
   useEffect(() => {
@@ -115,7 +172,7 @@ export default function JournalPage() {
 
     const timer = setTimeout(async () => {
       try {
-        await set("truenorth-journal-state", { pages, patternLogs });
+        await set("truenorth-journal-state", { pages, patternLogs, checklists });
         setAutosaveStatus("saved");
       } catch (err) {
         console.error("Autosave write failed:", err);
@@ -133,7 +190,7 @@ export default function JournalPage() {
       clearTimeout(statusTimer);
       clearTimeout(timer);
     };
-  }, [pages, patternLogs, hasHydrated]);
+  }, [pages, patternLogs, checklists, hasHydrated]);
 
   const handleHistoryChange = (undoAvailable: boolean, redoAvailable: boolean) => {
     setCanUndo(undoAvailable);
@@ -171,11 +228,27 @@ export default function JournalPage() {
     const textarea = document.getElementById("mock-journal-entry") as HTMLTextAreaElement;
     const textareaText = textarea ? textarea.value.trim() : "";
     const canvasText = extractTextFromCanvas(pages[currentPageIndex]);
-    const combinedText = [canvasText, textareaText].filter(Boolean).join("\n\n").trim();
+
+    // Gather selected checklist item labels for AI prompt context
+    const activeChecklist = checklists[currentPageIndex] || [];
+    const selectedLabels: string[] = [];
+    Object.entries(CHECKLIST_ITEMS).forEach(([category, items]) => {
+      items.forEach((item) => {
+        if (activeChecklist.includes(item.id)) {
+          selectedLabels.push(`${category}: ${item.label}`);
+        }
+      });
+    });
+
+    const checklistText = selectedLabels.length > 0
+      ? `User-Selected Checklist Items (User-reported feelings, needs, values, or experiences):\n${selectedLabels.map(l => `- ${l}`).join("\n")}`
+      : "";
+
+    const combinedText = [canvasText, textareaText, checklistText].filter(Boolean).join("\n\n").trim();
 
     // Client-side validation checks
     if (!combinedText) {
-      setReflectionError("Please write down some thoughts in your journal before reflecting.");
+      setReflectionError("Please write down some thoughts or select checklist items in your journal before reflecting.");
       return;
     }
 
@@ -398,6 +471,67 @@ export default function JournalPage() {
               Journal Reflection
             </h2>
 
+            {/* Optional Checklist Interface */}
+            {isChecklistOpen && (
+              <div className="border border-[#D79B95]/25 rounded-2xl bg-[#FDFBF7] p-4.5 space-y-4 shadow-sm border-dashed animate-fade-in">
+                <div className="flex justify-between items-center pb-2 border-b border-[#D79B95]/15">
+                  <span className="text-[10px] font-sans font-bold text-[#984343]/60 uppercase tracking-wider">
+                    Optional prompt checklists
+                  </span>
+                  <button 
+                    type="button" 
+                    onClick={() => setIsChecklistOpen(false)}
+                    className="text-xs font-bold text-[#984343]/60 hover:text-[#984343] cursor-pointer bg-[#F7D7CD]/20 px-2 py-0.5 rounded transition-colors"
+                  >
+                    Close ×
+                  </button>
+                </div>
+                
+                {/* Checklist Category Navigation Tabs */}
+                <div className="flex flex-wrap gap-1 border-b border-[#D79B95]/10 pb-2">
+                  {(Object.keys(CHECKLIST_ITEMS) as Array<keyof typeof CHECKLIST_ITEMS>).map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setActiveTab(cat)}
+                      className={`px-2.5 py-1 text-[9px] font-sans font-bold uppercase rounded-md transition-all cursor-pointer ${
+                        activeTab === cat 
+                          ? "bg-[#984343] text-[#FDFBF7]" 
+                          : "text-[#984343]/60 hover:bg-[#F7D7CD]/25"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Checklist Item Toggles Grid */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {CHECKLIST_ITEMS[activeTab].map((item) => {
+                    const isChecked = checklists[currentPageIndex]?.includes(item.id) || false;
+                    return (
+                      <label 
+                        key={item.id} 
+                        className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all cursor-pointer select-none ${
+                          isChecked 
+                            ? "bg-[#91BDC2]/15 border-[#91BDC2]/45 text-[#527d82] font-semibold animate-pulse-once" 
+                            : "bg-stone-50 border-stone-200/60 text-[#984343]/85 hover:bg-stone-100/30"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleChecklistItem(currentPageIndex, item.id)}
+                          className="w-3.5 h-3.5 border-stone-300 text-[#527d82] focus:ring-[#91BDC2] rounded cursor-pointer accent-[#527d82]"
+                        />
+                        <span>{item.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Visual Text Area Editor */}
             <div className="space-y-2">
               <label htmlFor="mock-journal-entry" className="font-serif italic text-sm text-[#984343]/80 block">
@@ -413,7 +547,7 @@ export default function JournalPage() {
 
             {/* Prompt Helper Info */}
             <div className="text-[11px] text-[#984343]/50 font-sans italic leading-relaxed">
-              * Note: Your entry text is kept strictly in local browser storage. Only when you click the Reflect button is this page&apos;s text sent securely to generate a calming AI reflection.
+              * Note: Your entry text and selected checklist prompts are kept strictly in local browser storage. Only when you explicitly click Reflect is this context sent securely to generate a calming AI reflection.
             </div>
           </div>
 
@@ -510,8 +644,8 @@ export default function JournalPage() {
 
           <button 
             type="button"
-            onClick={() => setSelectedTool("checklist")}
-            className={`p-3 rounded-full transition-all cursor-pointer relative group ${selectedTool === "checklist" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
+            onClick={() => setIsChecklistOpen((prev) => !prev)}
+            className={`p-3 rounded-full transition-all cursor-pointer relative group ${isChecklistOpen ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
           >
             <CheckSquare className="w-5 h-5" />
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[#984343] text-[#FDFBF7] text-[10px] font-sans uppercase font-bold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">

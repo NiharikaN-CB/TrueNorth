@@ -17,6 +17,7 @@ interface JournalState {
   pages: string[];
   currentPageIndex: number;
   patternLogs: PatternLog[];
+  checklists: string[][]; // Selected checklist item IDs for each page
   
   // Actions
   setPages: (pages: string[]) => void;
@@ -26,12 +27,15 @@ interface JournalState {
   setPatternLogs: (logs: PatternLog[]) => void;
   addPatternLog: (emotions: string[]) => void;
   clearPatternLogs: () => void;
+  setChecklists: (checklists: string[][]) => void;
+  toggleChecklistItem: (pageIndex: number, itemId: string) => void;
 }
 
 export const useJournalStore = create<JournalState>((set) => ({
   pages: ["{}"],
   currentPageIndex: 0,
   patternLogs: [],
+  checklists: [[]],
   
   setPages: (pages) => set({ pages }),
   setCurrentPageIndex: (currentPageIndex) => set({ currentPageIndex }),
@@ -46,6 +50,7 @@ export const useJournalStore = create<JournalState>((set) => ({
   createPage: () =>
     set((state) => ({
       pages: [...state.pages, "{}"],
+      checklists: [...state.checklists, []],
       currentPageIndex: state.pages.length,
     })),
 
@@ -62,4 +67,20 @@ export const useJournalStore = create<JournalState>((set) => ({
     }),
 
   clearPatternLogs: () => set({ patternLogs: [] }),
+
+  setChecklists: (checklists) => set({ checklists }),
+
+  toggleChecklistItem: (pageIndex, itemId) =>
+    set((state) => {
+      const updated = [...state.checklists];
+      const pageList = updated[pageIndex] ? [...updated[pageIndex]] : [];
+      const index = pageList.indexOf(itemId);
+      if (index > -1) {
+        pageList.splice(index, 1);
+      } else {
+        pageList.push(itemId);
+      }
+      updated[pageIndex] = pageList;
+      return { checklists: updated };
+    }),
 }));

@@ -61,6 +61,13 @@ This file tracks the active roadmaps, technical achievements, and completed feat
 *   **Safe Clear History:** Configured confirmation modals warning that clearing history affects analytics only, leaving journal pages, drawings, and text content completely untouched.
 *   **Insights Dashboard Page (`/patterns`):** Created the double-page scrapbook patterns layout displaying totals, emotion frequency bars, dynamic tentative observation lists, and safe reset options.
 
+### Phase 6 — Checklists
+*   **Page-Specific Checklist Store:** Added `checklists: string[][]` array state to the Zustand store. Ensures independent checkbox selection arrays aligned to each page index (`pages[idx] <-> checklists[idx]`).
+*   **Independent Array Hydration:** Implemented safe Array instances loading guards using `Array.from` that safely truncates or pads checklists lengths without copying references.
+*   **Curated Prompt Templates:** Configured 5 category prompt groups in the UI: Feelings, Needs, What felt good, What felt uncomfortable, and Values, mapped to unique stable IDs.
+*   **Aesthetic Tabbed UI:** Built lightweight tabs toggle buttons in the toolbar footer allowing users to check/uncheck checkboxes. Selected prompts feature soft background fills matching the seaside color scheme without resetting the narrative text area.
+*   **AI Consent & Privacy Boundaries:** Ensured checklist clicks only trigger local Zustand/IndexedDB saves, generating zero network calls. Appends selections to the Reflect prompt context as user-reported observations, instructing Gemini to keep interpretations tentative and non-clinical.
+
 ---
 
 ## 🛠️ Commands & Configs
