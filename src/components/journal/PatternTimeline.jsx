@@ -1,9 +1,11 @@
 import React from 'react'
 import { useJournalStore } from '../../store/useJournalStore'
-import { Activity, Calendar, Compass, Sparkles } from 'lucide-react'
+import { derivePatterns } from '../../utils/patterns'
+import { Compass, Sparkles } from 'lucide-react'
 
 export default function PatternTimeline() {
-  const patterns = useJournalStore((state) => state.patterns)
+  const pages = useJournalStore((state) => state.pages)
+  const { totalReflections, observations } = derivePatterns(pages)
 
   return (
     <div
@@ -39,41 +41,37 @@ export default function PatternTimeline() {
         Notice recurring themes across your entries to understand your personal emotional compass over time.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {patterns.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              background: '#FAF6F0',
-              borderRadius: '12px',
-              padding: '12px 14px',
-              borderLeft: '3px solid #C4715A',
-            }}
-          >
+      {totalReflections < 2 ? (
+        <p style={{ fontSize: '12.5px', color: '#8A7B70', lineHeight: '1.6', margin: 0, fontStyle: 'italic' }}>
+          Reflect on at least two entries and TrueNorth will gently start noticing themes that repeat — never a
+          diagnosis, just an observation.
+        </p>
+      ) : observations.length === 0 ? (
+        <p style={{ fontSize: '12.5px', color: '#8A7B70', lineHeight: '1.6', margin: 0, fontStyle: 'italic' }}>
+          Nothing has repeated across your {totalReflections} reflections yet. Keep journaling — patterns will
+          surface here as they emerge.
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {observations.map((item) => (
             <div
+              key={item.id}
               style={{
+                background: '#FAF6F0',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                borderLeft: '3px solid #C4715A',
                 display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '11px',
-                color: '#8A5844',
-                fontWeight: 600,
-                marginBottom: '4px',
+                gap: '8px',
+                alignItems: 'flex-start',
               }}
             >
-              <span>{item.theme}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar size={12} /> {item.date}
-              </span>
+              <Sparkles size={14} color="#C4715A" style={{ marginTop: '2px', flexShrink: 0 }} />
+              <p style={{ margin: 0, fontSize: '13px', color: '#3A423D', lineHeight: '1.5' }}>{item.text}</p>
             </div>
-            <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#3A423D', lineHeight: '1.4' }}>
-              {item.observation}
-            </p>
-            <div style={{ fontSize: '12px', color: '#2C5741', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Sparkles size={12} color="#10B981" /> {item.insight}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

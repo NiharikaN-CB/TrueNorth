@@ -75,25 +75,6 @@ export const useJournalStore = create(
       },
     ],
 
-    // Pattern Memory Timeline — still seeded/mock data; replaced with real
-    // derivation from completed reflections in a later step.
-    patterns: [
-      {
-        id: 'pattern-1',
-        date: 'Aug 14',
-        theme: 'Uncertain communication',
-        observation: 'Felt unsettled when texts were left unanswered for > 4 hours.',
-        insight: 'You prioritize responsiveness & clear expectations.',
-      },
-      {
-        id: 'pattern-2',
-        date: 'Aug 10',
-        theme: 'Boundary clarity',
-        observation: 'Felt proud for expressing your availability preference.',
-        insight: 'Standing firm in your needs brought peace.',
-      },
-    ],
-
     // Persistence state
     hasHydrated: false,
     autosaveStatus: 'saved', // 'saving' | 'saved' | 'error'
@@ -112,7 +93,6 @@ export const useJournalStore = create(
           set({
             pages: stored.pages,
             currentPageId,
-            patterns: Array.isArray(stored.patterns) ? stored.patterns : get().patterns,
             autosaveStatus: 'saved',
           })
         }
@@ -171,9 +151,9 @@ export const useJournalStore = create(
 
     clearAllData: async () => {
       const freshPage = createEmptyPage()
-      set({ pages: [freshPage], currentPageId: freshPage.id, patterns: [], autosaveStatus: 'saving' })
+      set({ pages: [freshPage], currentPageId: freshPage.id, autosaveStatus: 'saving' })
       try {
-        await idbSet(STORAGE_KEY, { pages: [freshPage], currentPageId: freshPage.id, patterns: [] })
+        await idbSet(STORAGE_KEY, { pages: [freshPage], currentPageId: freshPage.id })
         set({ autosaveStatus: 'saved' })
       } catch (err) {
         console.error('Failed to clear journal data in IndexedDB:', err)
@@ -184,13 +164,15 @@ export const useJournalStore = create(
 )
 
 // Real debounced autosave. Fires only when the durable slice of state
-// (pages / currentPageId / patterns) actually changes, and only after the
-// initial hydrate() has completed — so we never overwrite saved data with
-// the transient default state that exists before hydration runs.
+// (pages / currentPageId) actually changes, and only after the initial
+// hydrate() has completed — so we never overwrite saved data with the
+// transient default state that exists before hydration runs. Pattern data
+// is not stored separately — it's derived on demand from pages[].reflection
+// (see utils/patterns.js), so there's nothing extra to persist for it.
 let autosaveTimer = null
 
 useJournalStore.subscribe(
-  (state) => ({ pages: state.pages, currentPageId: state.currentPageId, patterns: state.patterns }),
+  (state) => ({ pages: state.pages, currentPageId: state.currentPageId }),
   (curr) => {
     if (!useJournalStore.getState().hasHydrated) return
 
@@ -208,6 +190,6 @@ useJournalStore.subscribe(
     }, AUTOSAVE_DEBOUNCE_MS)
   },
   {
-    equalityFn: (a, b) => a.pages === b.pages && a.currentPageId === b.currentPageId && a.patterns === b.patterns,
+    equalityFn: (a, b) => a.pages === b.pages && a.currentPageId === b.currentPageId,
   }
 )
