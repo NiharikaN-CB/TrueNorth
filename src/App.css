@@ -1,4 +1,43 @@
 /* ---------- nav ---------- */
+.landing-shell {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(201, 143, 154, 0.12), transparent 28%),
+    radial-gradient(circle at 75% 10%, rgba(145, 189, 194, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(245, 239, 233, 0.18), rgba(247, 236, 223, 0.14));
+}
+
+.landing-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02));
+}
+
+.landing-content {
+  position: relative;
+  z-index: 3;
+}
+
+.landing-waves {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.96;
+  filter: saturate(1.1) contrast(1.08) brightness(1.04);
+}
+
+.landing-waves > div {
+  width: 100%;
+  height: 100%;
+}
+
 .nav {
   position: sticky;
   top: 0;
@@ -58,14 +97,46 @@
 
 /* ---------- hero ---------- */
 .hero {
+  position: relative;
+  overflow: hidden;
   padding: 76px 0 60px;
 }
 
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(245, 239, 233, 0.82) 0%, rgba(245, 239, 233, 0.42) 35%, rgba(245, 239, 233, 0.2) 100%),
+    radial-gradient(circle at 20% 20%, rgba(255, 244, 214, 0.58), transparent 30%),
+    radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.42), transparent 28%);
+  z-index: 0;
+}
+
+.hero-scene {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.785), rgba(248, 241, 234, 0.18));
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0.5;
+  filter: saturate(1.2) contrast(1.02) brightness(1.5);
+  pointer-events: none;
+}
+
 .hero-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 1fr;
   gap: 56px;
   align-items: center;
+  animation: heroFade 0.9s ease-out both;
 }
 
 @media (min-width: 960px) {
@@ -75,41 +146,52 @@
   }
 }
 
+.hero-copy {
+  max-width: 560px;
+}
+
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--maroon);
   margin-bottom: 18px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(248, 241, 234, 0.7);
+  border: 1px solid rgba(152, 67, 67, 0.12);
+  box-shadow: 0 10px 28px -18px rgba(74, 46, 40, 0.45);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6B2528;
 }
 
 .eyebrow::before {
   content: "✦";
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .hero h1 {
+  margin: 0 0 22px;
+  color: #6B2528;
   font-size: clamp(40px, 6vw, 68px);
   line-height: 1.02;
-  margin: 0 0 22px;
-  color: var(--maroon);
+  text-shadow: 0 2px 12px rgba(255, 247, 240, 0.7), 0 0 28px rgba(255, 247, 240, 0.38);
 }
 
 .hero h1 em {
   font-style: italic;
-  color: var(--berry);
+  color: #4a0000;
 }
 
 .hero p.lede {
-  font-size: 18px;
-  line-height: 1.65;
-  color: var(--ink-soft);
   max-width: 480px;
   margin: 0 0 30px;
+  font-size: 18px;
+  line-height: 1.65;
+  color: #FFF7F0;
+  text-shadow: 0 1px 2px rgba(30, 18, 18, 0.14), 0 0 18px rgba(255, 247, 240, 0.12);
 }
 
 .hero-ctas {
@@ -119,18 +201,46 @@
   gap: 18px;
 }
 
-/* ---------- desk scene (signature element) ---------- */
-.desk {
-  position: relative;
-  height: 520px;
+.btn-primary {
+  box-shadow: 0 16px 30px -14px rgba(152, 67, 67, 0.55);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
-.desk::after {
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 32px -16px rgba(152, 67, 67, 0.6);
+  filter: saturate(1.03);
+}
+
+.hero-note {
+  margin-top: 20px;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 440px;
+  text-shadow: 0 1px 2px rgba(30, 18, 18, 0.14), 0 0 18px rgba(255, 247, 240, 0.08);
+}
+
+.hero-note b {
+  color: #fff7f6;
+  font-weight: 700;
+}
+
+/* ---------- desk scene (signature element) ---------- */
+.hero-desk {
+  position: relative;
+  height: 520px;
+  width: min(100%, 560px);
+  margin: 0 auto;
+  animation: heroFloat 12s ease-in-out infinite alternate;
+}
+
+.hero-desk::after {
   content: "";
   position: absolute;
-  inset: -40px -10px -10px -10px;
+  inset: -26px -10px -16px -10px;
   z-index: -1;
-  background: radial-gradient(60% 60% at 50% 40%, rgba(145, 189, 194, 0.25), transparent 70%);
+  background: radial-gradient(60% 60% at 50% 40%, rgba(145, 189, 194, 0.22), transparent 68%);
 }
 
 .journal-page {
@@ -139,14 +249,15 @@
   top: 20px;
   width: 78%;
   height: 88%;
-  background: var(--paper);
+  background: rgba(251, 245, 236, 0.96);
   border-radius: 6px 18px 6px 18px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 28px 40px -30px rgba(74, 46, 40, 0.45);
   transform: rotate(-4deg);
   padding: 34px 30px;
   background-image: radial-gradient(circle, rgba(74, 46, 40, 0.14) 1px, transparent 1.4px);
   background-size: 16px 16px;
   background-position: 6px 6px;
+  border: 1px solid rgba(74, 46, 40, 0.04);
 }
 
 .journal-page .date {
@@ -175,21 +286,21 @@
   width: 96px;
   height: 34px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
-  opacity: 0.9;
+  opacity: 0.82;
 }
 
 .tape.t1 {
   top: -14px;
   left: 36px;
   transform: rotate(-8deg);
-  background: linear-gradient(180deg, rgba(145, 189, 194, 0.65), rgba(145, 189, 194, 0.45));
+  background: linear-gradient(180deg, rgba(145, 189, 194, 0.75), rgba(145, 189, 194, 0.5));
 }
 
 .tape.t2 {
   top: 64px;
   left: -18px;
   transform: rotate(8deg);
-  background: linear-gradient(180deg, rgba(215, 155, 149, 0.7), rgba(215, 155, 149, 0.5));
+  background: linear-gradient(180deg, rgba(215, 155, 149, 0.72), rgba(215, 155, 149, 0.52));
 }
 
 .reflect-card {
@@ -198,11 +309,13 @@
   bottom: 6px;
   width: 62%;
   max-width: 280px;
-  background: var(--gold-pink);
+  background: rgba(247, 215, 205, 0.93);
   border-radius: 16px;
   padding: 22px 22px 24px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 22px 34px -24px rgba(74, 46, 40, 0.5);
   transform: rotate(4deg);
+  animation: reflectFloat 10s ease-in-out infinite alternate;
+  backdrop-filter: blur(2px);
 }
 
 .reflect-card .mark {
@@ -236,7 +349,7 @@
 }
 
 .reflect-card .chip {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.45);
   border-radius: 100px;
   padding: 5px 12px;
   font-size: 12px;
@@ -247,7 +360,7 @@
 .sticker {
   position: absolute;
   font-size: 38px;
-  filter: drop-shadow(0 6px 10px rgba(74, 46, 40, 0.2));
+  filter: drop-shadow(0 6px 10px rgba(74, 46, 40, 0.16));
 }
 
 .sticker.s1 {
@@ -261,6 +374,142 @@
   left: 2%;
   transform: rotate(-14deg);
   font-size: 30px;
+}
+
+@keyframes heroFloat {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-6px) rotate(-1deg);
+  }
+}
+
+@keyframes reflectFloat {
+  0% {
+    transform: rotate(3deg) translateY(0px);
+  }
+  100% {
+    transform: rotate(5deg) translateY(-4px);
+  }
+}
+
+@keyframes heroFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 959px) {
+  .hero {
+    padding-top: 52px;
+  }
+
+  .hero-grid {
+    gap: 32px;
+  }
+
+  .hero-copy {
+    max-width: none;
+  }
+
+  .hero-desk {
+    height: 440px;
+    width: min(100%, 520px);
+  }
+
+  .journal-page {
+    width: 82%;
+  }
+
+  .reflect-card {
+    width: 58%;
+  }
+
+  .sticker.s1 {
+    right: 1%;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 42px 0 48px;
+  }
+
+  .hero-grid {
+    gap: 24px;
+  }
+
+  .hero-copy {
+    text-align: left;
+  }
+
+  .eyebrow {
+    margin-bottom: 14px;
+    padding: 9px 12px;
+    letter-spacing: 0.06em;
+  }
+
+  .hero h1 {
+    margin-bottom: 16px;
+  }
+
+  .hero p.lede {
+    font-size: 16px;
+    margin-bottom: 22px;
+  }
+
+  .hero-desk {
+    height: 400px;
+    width: min(100%, 440px);
+  }
+
+  .journal-page {
+    width: 80%;
+    padding: 22px 18px;
+    top: 18px;
+  }
+
+  .journal-page .handwriting {
+    font-size: 24px;
+  }
+
+  .reflect-card {
+    right: 0;
+    bottom: 6px;
+    width: 56%;
+    padding: 16px 16px 18px;
+  }
+
+  .reflect-card p {
+    font-size: 13px;
+  }
+
+  .sticker {
+    font-size: 28px;
+  }
+
+  .sticker.s2 {
+    left: 0;
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-grid,
+  .hero-desk,
+  .reflect-card {
+    animation: none;
+  }
+
+  .btn-primary {
+    transition: none;
+  }
 }
 
 /* ---------- cycle strip ---------- */
