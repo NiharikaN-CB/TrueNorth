@@ -88,10 +88,10 @@ export default function Home() {
             </div>
             <div className="space-y-1.5 text-xs md:text-sm text-[#984343]/80 leading-relaxed font-sans">
               <p className="font-semibold">
-                "Your journal stays on your device. Nothing is sent for reflection unless you choose Reflect."
+                &quot;Your journal stays on your device. Nothing is sent for reflection unless you choose Reflect.&quot;
               </p>
               <p className="text-[#984343]/60 italic">
-                "When you choose Reflect, only the text needed for that reflection is sent securely to our AI service."
+                &quot;When you choose Reflect, only the text needed for that reflection is sent securely to our AI service.&quot;
               </p>
             </div>
           </div>

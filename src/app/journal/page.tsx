@@ -161,7 +161,7 @@ export default function JournalPage() {
 
             {/* Prompt Helper Info */}
             <div className="text-[11px] text-[#984343]/50 font-sans italic leading-relaxed">
-              * Note: Your entry text is kept strictly in local browser storage. Only when you click the Reflect button is this page's text sent securely to generate a calming AI reflection.
+              * Note: Your entry text is kept strictly in local browser storage. Only when you click the Reflect button is this page&apos;s text sent securely to generate a calming AI reflection.
             </div>
           </div>
 
