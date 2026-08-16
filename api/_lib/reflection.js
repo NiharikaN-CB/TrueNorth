@@ -68,6 +68,70 @@ const RESPONSE_SCHEMA = {
   ],
 }
 
+// Structural validation alone only proves the model returned the right
+// *shape* — it says nothing about whether the model actually followed the
+// safety rules in the prompt. Models don't reliably follow instructions
+// under all inputs, so this is a second, independent check on *content*:
+// if the response diagnoses/labels another person or prescribes a
+// relationship decision, the PRD's safety requirements treat that as an
+// unacceptable output regardless of how well-formed the JSON is. Reject the
+// whole response in that case, same as any other validation failure —
+// better to show a generic error than a labeling/prescriptive statement to
+// someone processing a dating experience.
+const DIAGNOSTIC_LABELS = [
+  'narcissist',
+  'narcissistic',
+  'sociopath',
+  'psychopath',
+  'gaslighting',
+  'gaslighter',
+  'toxic',
+  'abusive',
+  'abuser',
+  'manipulative',
+  'manipulator',
+  'predator',
+  'borderline',
+  'bipolar',
+  'emotionally unavailable',
+]
+
+const PRESCRIPTIVE_PHRASES = [
+  'you should leave',
+  'you should break up',
+  'you should end',
+  'you should confront',
+  'you should stay',
+  'you should not stay',
+  'you need to leave',
+  'you need to break up',
+  'you need to confront',
+  'you must leave',
+  'you must confront',
+  'break up with',
+]
+
+function containsUnsafeLanguage(text) {
+  if (typeof text !== 'string') return false
+  const lower = text.toLowerCase()
+  return (
+    DIAGNOSTIC_LABELS.some((term) => lower.includes(term)) ||
+    PRESCRIPTIVE_PHRASES.some((phrase) => lower.includes(phrase))
+  )
+}
+
+function reflectionContainsUnsafeLanguage(data) {
+  const textFields = [data.summary, data.gentleReflection, data.patternObservation, data.recoverySuggestion]
+  if (textFields.some(containsUnsafeLanguage)) return true
+  if (Array.isArray(data.questions) && data.questions.some(containsUnsafeLanguage)) return true
+  if (Array.isArray(data.redFlags)) {
+    for (const flag of data.redFlags) {
+      if (containsUnsafeLanguage(flag?.observation) || containsUnsafeLanguage(flag?.reason)) return true
+    }
+  }
+  return false
+}
+
 function validateReflection(data) {
   if (!data || typeof data !== 'object') return null
   if (typeof data.summary !== 'string') return null
@@ -81,6 +145,8 @@ function validateReflection(data) {
     if (!flag || typeof flag !== 'object') return null
     if (typeof flag.observation !== 'string' || typeof flag.reason !== 'string') return null
   }
+
+  if (reflectionContainsUnsafeLanguage(data)) return null
 
   return {
     summary: data.summary,
@@ -177,7 +243,7 @@ export async function runReflection(rawText) {
 
   const validated = validateReflection(reflectionData)
   if (!validated) {
-    console.error('AI output failed schema validation.')
+    console.error('AI output failed schema or safety-language validation.')
     return { status: 502, body: { error: 'AI service response failed validation.' } }
   }
 
