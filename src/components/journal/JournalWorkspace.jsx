@@ -7,6 +7,7 @@ import ReflectionPanel from './ReflectionPanel'
 import AmbientSoundPlayer from './AmbientSoundPlayer'
 import PaperTexturePicker from './PaperTexturePicker'
 import PatternTimeline from './PatternTimeline'
+import PageNavigator from './PageNavigator'
 import { ArrowLeft, ShieldCheck, Download, Trash2, AlertTriangle } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
@@ -269,6 +270,8 @@ export default function JournalWorkspace() {
           </div>
 
           <JournalCanvas ref={canvasComponentRef} />
+
+          <PageNavigator />
         </div>
 
         {/* Right Column: AI Reflection & Pattern Timeline */}

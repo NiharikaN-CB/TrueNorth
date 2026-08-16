@@ -134,6 +134,17 @@ export const useJournalStore = create(
         isReflecting: false,
       })),
 
+    // Page navigation
+    setCurrentPageId: (pageId) => {
+      const exists = get().pages.some((p) => p.id === pageId)
+      if (exists) set({ currentPageId: pageId })
+    },
+
+    addPage: () => {
+      const freshPage = createEmptyPage()
+      set((state) => ({ pages: [...state.pages, freshPage], currentPageId: freshPage.id }))
+    },
+
     // Page content actions
     updateCurrentPageData: (canvasJson, text = '') => {
       const { currentPageId, pages } = get()

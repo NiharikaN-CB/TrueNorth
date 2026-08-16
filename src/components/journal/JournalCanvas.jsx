@@ -16,6 +16,9 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
   const updateCurrentPageData = useJournalStore((state) => state.updateCurrentPageData)
   const hasHydrated = useJournalStore((state) => state.hasHydrated)
   const currentPageId = useJournalStore((state) => state.currentPageId)
+  const currentPageCreatedAt = useJournalStore(
+    (state) => state.pages.find((p) => p.id === state.currentPageId)?.createdAt
+  )
 
   const [notesText, setNotesText] = useState('')
 
@@ -203,6 +206,14 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
     }
   }
 
+  const formattedPageDate = currentPageCreatedAt
+    ? new Date(currentPageCreatedAt).toLocaleString('en-US', {
+        weekday: 'long',
+        hour: 'numeric',
+        minute: '2-digit',
+      })
+    : ''
+
   return (
     <div
       id="journal-scrapbook-page"
@@ -235,7 +246,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
             Private Digital Planner • {paperTexture.name}
           </span>
           <h2 style={{ fontFamily: "'Playfair Display', serif", margin: '2px 0 0', fontSize: '20px' }}>
-            Tuesday, 9:47 PM
+            {formattedPageDate}
           </h2>
         </div>
 
