@@ -19,17 +19,19 @@ export default function App() {
   }
 
   return (
-    <>
-      <Nav />
-      <Hero />
-      <CycleStrip />
-      <Reframe />
-      <Features />
-      <Flow />
-      <Privacy />
-      <Closing />
-      <Footer />
-    </>
+    <div className="landing-shell">
+      <div className="landing-content">
+        <Nav />
+        <Hero />
+        <CycleStrip />
+        <Reframe />
+        <Features />
+        <Flow />
+        <Privacy />
+        <Closing />
+        <Footer />
+      </div>
+    </div>
   )
 }
 

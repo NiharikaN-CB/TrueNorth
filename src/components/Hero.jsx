@@ -5,9 +5,14 @@ export default function Hero() {
   const openJournal = useJournalStore((state) => state.openJournal)
 
   return (
-    <section className="hero">
+    <section className="hero hero-scene">
+      <video className="hero-video" autoPlay loop muted playsInline>
+        <source src="/hero-video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
       <div className="wrap hero-grid">
-        <div>
+        <div className="hero-copy">
           <div className="eyebrow">Private &amp; local, always</div>
           <h1>
             A calmer<br />way to <em>date.</em>
@@ -22,12 +27,12 @@ export default function Hero() {
               Start journaling — it's free
             </button>
           </div>
-          <p className="hero-note" style={{ marginTop: '20px' }}>
+          <p className="hero-note">
             No account. No cloud. <b>Everything stays on your device</b> until you choose to reflect.
           </p>
         </div>
 
-        <Reveal className="desk">
+        <Reveal className="desk hero-desk">
           <div className="tape t1" />
           <div className="journal-page">
             <div className="date">Tuesday, 9:47 PM</div>
