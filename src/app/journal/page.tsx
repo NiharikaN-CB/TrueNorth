@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import dynamic from "next/dynamic";
+import type { JournalCanvasRef } from "@/components/journal/JournalCanvas";
 
 const JournalCanvas = dynamic(
   () => import("@/components/journal/JournalCanvas").then((mod) => mod.JournalCanvas),
@@ -23,7 +24,15 @@ import {
 } from "lucide-react";
 
 export default function JournalPage() {
-  const [selectedTool, setSelectedTool] = useState<string>("text");
+  const [selectedTool, setSelectedTool] = useState<string>("pen");
+  const canvasRef = useRef<JournalCanvasRef>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const handleHistoryChange = (undoAvailable: boolean, redoAvailable: boolean) => {
+    setCanUndo(undoAvailable);
+    setCanRedo(redoAvailable);
+  };
 
   // Format today's date
   const today = new Date().toLocaleDateString("en-US", {
@@ -79,7 +88,11 @@ export default function JournalPage() {
 
             {/* Dotted Canvas Surface (Dynamic Fabric.js Component) */}
             <div className="h-[380px] w-full">
-              <JournalCanvas />
+              <JournalCanvas 
+                activeTool={selectedTool} 
+                onHistoryChange={handleHistoryChange} 
+                ref={canvasRef} 
+              />
             </div>
           </div>
 
@@ -88,16 +101,18 @@ export default function JournalPage() {
             {/* Undo / Redo */}
             <div className="flex gap-2">
               <button 
-                title="Undo (Disabled)" 
-                disabled 
-                className="p-2 rounded-lg text-[#984343]/30 border border-[#D79B95]/10 cursor-not-allowed"
+                title="Undo" 
+                onClick={() => canvasRef.current?.undo()}
+                disabled={!canUndo} 
+                className={`p-2 rounded-lg transition-all border ${canUndo ? "text-[#984343] border-[#D79B95]/30 hover:bg-[#F7D7CD]/30 cursor-pointer" : "text-[#984343]/30 border-[#D79B95]/10 cursor-not-allowed"}`}
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
               <button 
-                title="Redo (Disabled)" 
-                disabled 
-                className="p-2 rounded-lg text-[#984343]/30 border border-[#D79B95]/10 cursor-not-allowed"
+                title="Redo" 
+                onClick={() => canvasRef.current?.redo()}
+                disabled={!canRedo} 
+                className={`p-2 rounded-lg transition-all border ${canRedo ? "text-[#984343] border-[#D79B95]/30 hover:bg-[#F7D7CD]/30 cursor-pointer" : "text-[#984343]/30 border-[#D79B95]/10 cursor-not-allowed"}`}
               >
                 <RotateCw className="w-4 h-4" />
               </button>
