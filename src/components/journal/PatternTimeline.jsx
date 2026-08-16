@@ -1,15 +1,17 @@
 import React from 'react'
 import { useJournalStore } from '../../store/useJournalStore'
-import { Activity, Calendar, Compass, Sparkles } from 'lucide-react'
+import { derivePatterns } from '../../utils/patterns'
+import { Compass, Sparkles } from 'lucide-react'
 
 export default function PatternTimeline() {
-  const patterns = useJournalStore((state) => state.patterns)
+  const pages = useJournalStore((state) => state.pages)
+  const { totalReflections, observations } = derivePatterns(pages)
 
   return (
     <div
       style={{
-        background: '#FFFDF9',
-        border: '1px solid #EBE3D7',
+        background: '#FBF5EC',
+        border: '1px solid rgba(215, 155, 149, 0.3)',
         borderRadius: '20px',
         padding: '20px',
       }}
@@ -22,12 +24,12 @@ export default function PatternTimeline() {
           marginBottom: '14px',
         }}
       >
-        <Compass size={18} color="#C4715A" />
+        <Compass size={18} color="#984343" />
         <h4
           style={{
             fontFamily: "'Playfair Display', serif",
             margin: 0,
-            color: '#2C3E35',
+            color: '#984343',
             fontSize: '16px',
           }}
         >
@@ -35,45 +37,41 @@ export default function PatternTimeline() {
         </h4>
       </div>
 
-      <p style={{ fontSize: '12px', color: '#8A7B70', margin: '0 0 14px', lineHeight: '1.5' }}>
+      <p style={{ fontSize: '12px', color: '#8a6a5f', margin: '0 0 14px', lineHeight: '1.5' }}>
         Notice recurring themes across your entries to understand your personal emotional compass over time.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {patterns.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              background: '#FAF6F0',
-              borderRadius: '12px',
-              padding: '12px 14px',
-              borderLeft: '3px solid #C4715A',
-            }}
-          >
+      {totalReflections < 2 ? (
+        <p style={{ fontSize: '12.5px', color: '#8a6a5f', lineHeight: '1.6', margin: 0, fontStyle: 'italic' }}>
+          Reflect on at least two entries and TrueNorth will gently start noticing themes that repeat — never a
+          diagnosis, just an observation.
+        </p>
+      ) : observations.length === 0 ? (
+        <p style={{ fontSize: '12.5px', color: '#8a6a5f', lineHeight: '1.6', margin: 0, fontStyle: 'italic' }}>
+          Nothing has repeated across your {totalReflections} reflections yet. Keep journaling — patterns will
+          surface here as they emerge.
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {observations.map((item) => (
             <div
+              key={item.id}
               style={{
+                background: '#F1E4D9',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                borderLeft: '3px solid #984343',
                 display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '11px',
-                color: '#8A5844',
-                fontWeight: 600,
-                marginBottom: '4px',
+                gap: '8px',
+                alignItems: 'flex-start',
               }}
             >
-              <span>{item.theme}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar size={12} /> {item.date}
-              </span>
+              <Sparkles size={14} color="#984343" style={{ marginTop: '2px', flexShrink: 0 }} />
+              <p style={{ margin: 0, fontSize: '13px', color: '#4A2E28', lineHeight: '1.5' }}>{item.text}</p>
             </div>
-            <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#3A423D', lineHeight: '1.4' }}>
-              {item.observation}
-            </p>
-            <div style={{ fontSize: '12px', color: '#2C5741', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Sparkles size={12} color="#10B981" /> {item.insight}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

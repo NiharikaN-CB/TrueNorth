@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useJournalStore } from './store/useJournalStore'
 import Nav from './components/Nav.jsx'
 import Hero from './components/Hero.jsx'
@@ -13,6 +14,10 @@ import './App.css'
 
 export default function App() {
   const currentView = useJournalStore((state) => state.currentView)
+
+  useEffect(() => {
+    useJournalStore.getState().hydrate()
+  }, [])
 
   if (currentView === 'journal') {
     return <JournalWorkspace />

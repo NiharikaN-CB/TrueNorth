@@ -15,7 +15,14 @@ import { jsPDF } from 'jspdf'
 
 export default function JournalWorkspace() {
   const openLanding = useJournalStore((state) => state.openLanding)
+  const hasHydrated = useJournalStore((state) => state.hasHydrated)
+  const currentPageId = useJournalStore((state) => state.currentPageId)
+  const deletePage = useJournalStore((state) => state.deletePage)
+  const clearAllData = useJournalStore((state) => state.clearAllData)
   const canvasComponentRef = useRef(null)
+  const [confirmAction, setConfirmAction] = useState(null) // null | 'deletePage' | 'clearAll'
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
 
   const [activeWorkspaceMode, setActiveWorkspaceMode] = useState('canvas') // 'canvas' | 'antigravity' | 'vent'
 
@@ -37,6 +44,23 @@ export default function JournalWorkspace() {
     }
   }
 
+  const handleUndo = () => {
+    if (canvasComponentRef.current) {
+      canvasComponentRef.current.undo()
+    }
+  }
+
+  const handleRedo = () => {
+    if (canvasComponentRef.current) {
+      canvasComponentRef.current.redo()
+    }
+  }
+
+  const handleHistoryChange = (nextCanUndo, nextCanRedo) => {
+    setCanUndo(nextCanUndo)
+    setCanRedo(nextCanRedo)
+  }
+
   const handleExportPdf = async () => {
     const pageEl = document.getElementById('journal-scrapbook-page')
     if (!pageEl) return
@@ -55,12 +79,40 @@ export default function JournalWorkspace() {
     }
   }
 
+  const handleConfirmAction = () => {
+    if (confirmAction === 'deletePage') {
+      deletePage(currentPageId)
+    } else if (confirmAction === 'clearAll') {
+      clearAllData()
+    }
+    setConfirmAction(null)
+  }
+
+  if (!hasHydrated) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#F1E4D9',
+          color: '#8a6a5f',
+          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontSize: '14px',
+        }}
+      >
+        Loading your journal…
+      </div>
+    )
+  }
+
   return (
     <div
       style={{
         minHeight: '100vh',
-        background: '#FAF6F0',
-        color: '#2C3E35',
+        background: '#F1E4D9',
+        color: '#984343',
         fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         paddingBottom: '60px',
       }}
@@ -74,7 +126,7 @@ export default function JournalWorkspace() {
           padding: '14px 28px',
           background: 'rgba(255, 253, 249, 0.95)',
           backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid #EBE3D7',
+          borderBottom: '1px solid rgba(215, 155, 149, 0.3)',
           position: 'sticky',
           top: 0,
           zIndex: 40,
@@ -86,12 +138,12 @@ export default function JournalWorkspace() {
           <button
             onClick={openLanding}
             style={{
-              background: '#F4ECE1',
+              background: '#F7D7CD',
               border: 'none',
               borderRadius: '20px',
               padding: '8px 14px',
               fontSize: '13px',
-              color: '#8A5844',
+              color: '#8a6a5f',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -102,7 +154,7 @@ export default function JournalWorkspace() {
             <ArrowLeft size={16} /> Home
           </button>
           <div>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '18px', color: '#2C3E35' }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '18px', color: '#984343' }}>
               TrueNorth
             </span>
             <span style={{ fontSize: '12px', color: '#8A7B70', marginLeft: '8px' }}>— Digital Planner &amp; Reflection</span>
@@ -119,14 +171,47 @@ export default function JournalWorkspace() {
               alignItems: 'center',
               gap: '4px',
               fontSize: '12px',
-              color: '#2C5741',
-              background: '#EAF4EE',
+              color: '#5f8b90',
+              background: 'rgba(145, 189, 194, 0.18)',
               padding: '4px 10px',
               borderRadius: '12px',
             }}
           >
             <ShieldCheck size={14} /> 100% Private
           </div>
+          <button
+            onClick={() => setConfirmAction('deletePage')}
+            title="Delete this page"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#A85B5B',
+              background: 'transparent',
+              border: '1px solid rgba(215, 155, 149, 0.25)',
+              padding: '4px 10px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+            }}
+          >
+            <Trash2 size={13} /> Delete Page
+          </button>
+          <button
+            onClick={() => setConfirmAction('clearAll')}
+            title="Permanently clear all journal data"
+            style={{
+              fontSize: '12px',
+              color: '#A85B5B',
+              background: 'transparent',
+              border: '1px solid rgba(215, 155, 149, 0.25)',
+              padding: '4px 10px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+            }}
+          >
+            Clear all data
+          </button>
         </div>
       </header>
 
@@ -206,6 +291,7 @@ export default function JournalWorkspace() {
 
       {/* Main Workspace Grid */}
       <main
+        className="tn-journal-main"
         style={{
           maxWidth: '1240px',
           margin: '24px auto 0',

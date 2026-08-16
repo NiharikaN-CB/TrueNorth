@@ -64,9 +64,9 @@ export default function StickerPicker({ onSelectSticker, onClose }) {
   return (
     <div
       style={{
-        background: '#FFFDF9',
-        border: '1px solid #E2D9CF',
-        borderRadius: '20px',
+        background: '#FBF5EC',
+        border: '1px solid rgba(215, 155, 149, 0.3)',
+        borderRadius: '16px',
         padding: '16px',
         boxShadow: '0 12px 36px rgba(0,0,0,0.1)',
         maxWidth: '300px',
@@ -98,7 +98,7 @@ export default function StickerPicker({ onSelectSticker, onClose }) {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#8A7B70',
+              color: '#8a6a5f',
               fontSize: '14px',
             }}
           >

@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/reflect.js": {
+      "maxDuration": 30
+    }
+  }
+}
