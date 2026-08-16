@@ -9,7 +9,7 @@ import ReflectionPanel from './ReflectionPanel'
 import AmbientSoundPlayer from './AmbientSoundPlayer'
 import PaperTexturePicker from './PaperTexturePicker'
 import PatternTimeline from './PatternTimeline'
-import { ArrowLeft, ShieldCheck, Sparkles, BookOpen, Lock } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Sparkles, BookOpen, Lock, Trash2 } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
