@@ -1,24 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Matter from 'matter-js'
-import { Sparkles, RefreshCw, Plus, Heart } from 'lucide-react'
+import { Sparkles, RefreshCw, Plus } from 'lucide-react'
 
-// Pinterest-inspired Cute Kawaii Stickers with vibrant pastel styles
+// Pinterest-inspired Cute Kawaii Emotes
 export const CUTEST_KAWAII_STICKERS = [
-  { id: 'ribbon_bow', label: 'Ribbon Bow', emoji: '🎀', bg: '#FFE3EA', border: '#FFB6C1', color: '#D9486B' },
-  { id: 'sparkle_heart', label: 'Sparkle Heart', emoji: '💖', bg: '#FFF0F5', border: '#FFC0CB', color: '#E63956' },
-  { id: 'boba_tea', label: 'Boba Tea', emoji: '🧋', bg: '#FFF5F0', border: '#FCD7C7', color: '#A0522D' },
-  { id: 'soft_bunny', label: 'Soft Bunny', emoji: '🐰', bg: '#FFF0F5', border: '#FFD6E8', color: '#D87093' },
-  { id: 'sweet_strawberry', label: 'Berry Sweet', emoji: '🍓', bg: '#FFEBEB', border: '#FFC4C4', color: '#C70039' },
-  { id: 'cozy_matcha', label: 'Cozy Matcha', emoji: '🍵', bg: '#EAF4EE', border: '#B7E4C7', color: '#2C5741' },
-  { id: 'polaroid_memory', label: 'Polaroid', emoji: '📸', bg: '#FAF6F0', border: '#E2D9CF', color: '#8A5844' },
-  { id: 'coastal_shell', label: 'Coastal Shell', emoji: '🐚', bg: '#FDF6F0', border: '#F4C7B8', color: '#C4715A' },
-  { id: 'blush_rose', label: 'Blush Rose', emoji: '🌹', bg: '#FFEBEB', border: '#F8B4B4', color: '#B93838' },
-  { id: 'cloud_dream', label: 'Cloud Dream', emoji: '☁️', bg: '#F0F8FF', border: '#B0C4DE', color: '#4682B4' },
-  { id: 'boundary_gem', label: 'Boundary Gem', emoji: '💎', bg: '#F0F7FF', border: '#BEE3F8', color: '#2B6CB0' },
-  { id: 'self_clarity', label: 'Self Clarity', emoji: '🔮', bg: '#F3E8FF', border: '#E9D8FD', color: '#6B46C1' },
-  { id: 'green_flag', label: 'Green Light', emoji: '🟢', bg: '#E6FFFA', border: '#B2F5EA', color: '#234E52' },
-  { id: 'gentle_notice', label: 'Gentle Notice', emoji: '🚩', bg: '#FFF5F5', border: '#FED7D7', color: '#9B2C2C' },
-  { id: 'star_sparkle', label: 'Cosmic Star', emoji: '✨', bg: '#FEFCBF', border: '#F6E05E', color: '#975A16' },
+  { id: 'ribbon_bow', emoji: '🎀', bg: '#FFE3EA', border: '#FFB6C1' },
+  { id: 'sparkle_heart', emoji: '💖', bg: '#FFF0F5', border: '#FFC0CB' },
+  { id: 'boba_tea', emoji: '🧋', bg: '#FFF5F0', border: '#FCD7C7' },
+  { id: 'soft_bunny', emoji: '🐰', bg: '#FFF0F5', border: '#FFD6E8' },
+  { id: 'sweet_strawberry', emoji: '🍓', bg: '#FFEBEB', border: '#FFC4C4' },
+  { id: 'cozy_matcha', emoji: '🍵', bg: '#EAF4EE', border: '#B7E4C7' },
+  { id: 'polaroid_memory', emoji: '📸', bg: '#FAF6F0', border: '#E2D9CF' },
+  { id: 'coastal_shell', emoji: '🐚', bg: '#FDF6F0', border: '#F4C7B8' },
+  { id: 'blush_rose', emoji: '🌹', bg: '#FFEBEB', border: '#F8B4B4' },
+  { id: 'cloud_dream', emoji: '☁️', bg: '#F0F8FF', border: '#B0C4DE' },
+  { id: 'boundary_gem', emoji: '💎', bg: '#F0F7FF', border: '#BEE3F8' },
+  { id: 'self_clarity', emoji: '🔮', bg: '#F3E8FF', border: '#E9D8FD' },
+  { id: 'green_flag', emoji: '🟢', bg: '#E6FFFA', border: '#B2F5EA' },
+  { id: 'gentle_notice', emoji: '🚩', bg: '#FFF5F5', border: '#FED7D7' },
+  { id: 'star_sparkle', emoji: '✨', bg: '#FEFCBF', border: '#F6E05E' },
 ]
 
 export default function FloatingSanctuary() {
@@ -59,7 +59,7 @@ export default function FloatingSanctuary() {
     const newStickersState = []
 
     initialList.forEach((item, i) => {
-      const radius = 38
+      const radius = 34
       const x = 100 + (i % 4) * 150 + Math.random() * 20
       const y = 80 + Math.floor(i / 4) * 150 + Math.random() * 20
 
@@ -102,7 +102,7 @@ export default function FloatingSanctuary() {
     const runner = Runner.create()
     Runner.run(runner, engine)
 
-    // 5. Physics Tick Loop: Sync Matter.js positions to React DOM state for 100% crisp rendering
+    // 5. Physics Tick Loop: Sync Matter.js positions to React DOM state
     let animId
     const updatePositions = () => {
       const updated = bodiesRef.current.map(({ body, item, id }) => ({
@@ -134,7 +134,7 @@ export default function FloatingSanctuary() {
     const randomItem =
       CUTEST_KAWAII_STICKERS[Math.floor(Math.random() * CUTEST_KAWAII_STICKERS.length)]
 
-    const radius = 38
+    const radius = 34
     const body = Bodies.circle(width / 2, height / 2, radius, {
       restitution: 0.92,
       frictionAir: 0.008,
@@ -215,7 +215,7 @@ export default function FloatingSanctuary() {
               fontWeight: 500,
             }}
           >
-            <Plus size={14} /> Add Cute Sticker
+            <Plus size={14} /> Add Cute Emote
           </button>
 
           <button
@@ -256,16 +256,15 @@ export default function FloatingSanctuary() {
             key={s.id}
             style={{
               position: 'absolute',
-              left: `${s.x - 38}px`,
-              top: `${s.y - 38}px`,
-              width: '76px',
-              height: '76px',
+              left: `${s.x - 34}px`,
+              top: `${s.y - 34}px`,
+              width: '68px',
+              height: '68px',
               borderRadius: '50%',
               backgroundColor: s.item.bg,
               border: `2px solid ${s.item.border}`,
               boxShadow: '0 6px 16px rgba(0,0,0,0.08)',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
               transform: `rotate(${s.angle}rad)`,
@@ -274,19 +273,7 @@ export default function FloatingSanctuary() {
               transition: 'transform 0.05s linear',
             }}
           >
-            <span style={{ fontSize: '28px', lineHeight: 1 }}>{s.item.emoji}</span>
-            <span
-              style={{
-                fontSize: '9px',
-                fontWeight: 600,
-                color: s.item.color,
-                marginTop: '2px',
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {s.item.label}
-            </span>
+            <span style={{ fontSize: '32px', lineHeight: 1 }}>{s.item.emoji}</span>
           </div>
         ))}
       </div>
@@ -300,8 +287,8 @@ export default function FloatingSanctuary() {
           color: '#8A7B70',
         }}
       >
-        <span>✨ Grab, toss, and float stickers around your peaceful sanctuary</span>
-        <span>{stickersState.length} stickers floating</span>
+        <span>✨ Grab, toss, and float clean emotes around your sanctuary</span>
+        <span>{stickersState.length} emotes floating</span>
       </div>
     </div>
   )
