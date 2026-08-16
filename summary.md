@@ -30,6 +30,13 @@ This file tracks the active roadmaps, technical achievements, and completed feat
 *   **Duplicate Event Guards:** Configured history event listeners to filter duplicate states (e.g. ignoring path additions from pen strokes and guarding restoration events during undo/redo actions).
 *   **Toolbar Buttons Connected:** Wired up tool selection states and disabled properties of Undo/Redo button clicks dynamically.
 
+### Phase 2.3 — Multi-page Journal Canvas
+*   **Multi-page In-Memory State:** Maintained page canvas JSON strings in the parent page's state (`pages`, `currentPageIndex`).
+*   **React Key-Based Mounting:** Configured `<JournalCanvas key={currentPageIndex} ... />` to force dynamic unmounting of inactive canvas instances (properly triggering Fabric `.dispose()` cleanup) and fresh mounting of target page states.
+*   **State Restoration:** Enabled canvas state deserialization dynamically from parent pages state on mount using async `.loadFromJSON()`.
+*   **Auto-update parent on Canvas modifications:** Wired the canvas `onCanvasChange` prop to trigger parent updates on drawing, typing, and eraser modifications.
+*   **Accessible Navigation Controls:** Connected center Previous and Next page controls with appropriate disabled states and created a functional "New Page +" CTA button to append blank canvas templates.
+
 ---
 
 ## 🛠️ Commands & Configs

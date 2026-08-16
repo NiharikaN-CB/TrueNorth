@@ -28,10 +28,43 @@ export default function JournalPage() {
   const canvasRef = useRef<JournalCanvasRef>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [pages, setPages] = useState<string[]>(["{}"]);
+  const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
 
   const handleHistoryChange = (undoAvailable: boolean, redoAvailable: boolean) => {
     setCanUndo(undoAvailable);
     setCanRedo(redoAvailable);
+  };
+
+  const handleCanvasChange = (json: string) => {
+    setPages((prevPages) => {
+      const updated = [...prevPages];
+      updated[currentPageIndex] = json;
+      return updated;
+    });
+  };
+
+  const handleCreatePage = () => {
+    setPages((prevPages) => [...prevPages, "{}"]);
+    setCurrentPageIndex(pages.length);
+    setCanUndo(false);
+    setCanRedo(false);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPageIndex > 0) {
+      setCurrentPageIndex(currentPageIndex - 1);
+      setCanUndo(false);
+      setCanRedo(false);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPageIndex < pages.length - 1) {
+      setCurrentPageIndex(currentPageIndex + 1);
+      setCanUndo(false);
+      setCanRedo(false);
+    }
   };
 
   // Format today's date
@@ -89,6 +122,9 @@ export default function JournalPage() {
             {/* Dotted Canvas Surface (Dynamic Fabric.js Component) */}
             <div className="h-[380px] w-full">
               <JournalCanvas 
+                key={currentPageIndex}
+                initialCanvasJson={pages[currentPageIndex]}
+                onCanvasChange={handleCanvasChange}
                 activeTool={selectedTool} 
                 onHistoryChange={handleHistoryChange} 
                 ref={canvasRef} 
@@ -121,19 +157,44 @@ export default function JournalPage() {
             {/* Page number switcher */}
             <div className="flex items-center gap-3">
               <button 
-                title="Previous Page (Disabled)" 
-                disabled 
-                className="p-1.5 rounded-full text-[#984343]/30 cursor-not-allowed"
+                type="button"
+                title="Previous Page" 
+                onClick={handlePreviousPage}
+                disabled={currentPageIndex === 0} 
+                className={`p-1.5 rounded-full transition-all ${
+                  currentPageIndex > 0 
+                    ? "text-[#984343] hover:bg-[#F7D7CD]/30 cursor-pointer" 
+                    : "text-[#984343]/30 cursor-not-allowed"
+                }`}
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
-              <span className="text-xs font-sans font-bold text-[#984343]/70 uppercase tracking-wider">Page 1 of 1</span>
+              <span className="text-xs font-sans font-bold text-[#984343]/70 uppercase tracking-wider">
+                Page {currentPageIndex + 1} of {pages.length}
+              </span>
               <button 
-                title="Next Page (Disabled)" 
-                disabled 
-                className="p-1.5 rounded-full text-[#984343]/30 cursor-not-allowed"
+                type="button"
+                title="Next Page" 
+                onClick={handleNextPage}
+                disabled={currentPageIndex === pages.length - 1} 
+                className={`p-1.5 rounded-full transition-all ${
+                  currentPageIndex < pages.length - 1 
+                    ? "text-[#984343] hover:bg-[#F7D7CD]/30 cursor-pointer" 
+                    : "text-[#984343]/30 cursor-not-allowed"
+                }`}
               >
                 <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* New Page Button */}
+            <div>
+              <button 
+                type="button"
+                onClick={handleCreatePage}
+                className="px-3 py-1.5 rounded-lg border border-[#D79B95]/30 text-xs font-sans font-bold text-[#984343] hover:bg-[#F7D7CD]/30 hover:shadow-xs active:scale-97 cursor-pointer transition-all flex items-center gap-1"
+              >
+                New Page +
               </button>
             </div>
           </div>

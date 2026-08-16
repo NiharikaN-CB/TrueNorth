@@ -11,10 +11,12 @@ export interface JournalCanvasRef {
 interface JournalCanvasProps {
   activeTool: string;
   onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
+  initialCanvasJson?: string;
+  onCanvasChange?: (json: string) => void;
 }
 
 export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
-  ({ activeTool, onHistoryChange }, ref) => {
+  ({ activeTool, onHistoryChange, initialCanvasJson = "{}", onCanvasChange }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const fabricCanvasRef = useRef<Canvas | null>(null);
@@ -25,6 +27,7 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
     const historyIndexRef = useRef<number>(-1);
     const isHandlingHistoryRef = useRef<boolean>(false);
     const onHistoryChangeRef = useRef<((canUndo: boolean, canRedo: boolean) => void) | undefined>(onHistoryChange);
+    const onCanvasChangeRef = useRef<((json: string) => void) | undefined>(onCanvasChange);
 
     // Keep ref values up-to-date
     useEffect(() => {
@@ -34,6 +37,10 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
     useEffect(() => {
       onHistoryChangeRef.current = onHistoryChange;
     }, [onHistoryChange]);
+
+    useEffect(() => {
+      onCanvasChangeRef.current = onCanvasChange;
+    }, [onCanvasChange]);
 
     const notifyHistoryChange = () => {
       if (onHistoryChangeRef.current) {
@@ -54,6 +61,7 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
       try {
         await canvasInstance.loadFromJSON(JSON.parse(jsonStr));
         canvasInstance.renderAll();
+        onCanvasChangeRef.current?.(jsonStr);
       } catch (err) {
         console.error("Error loading undo state: ", err);
       } finally {
@@ -73,6 +81,7 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
       try {
         await canvasInstance.loadFromJSON(JSON.parse(jsonStr));
         canvasInstance.renderAll();
+        onCanvasChangeRef.current?.(jsonStr);
       } catch (err) {
         console.error("Error loading redo state: ", err);
       } finally {
@@ -125,13 +134,31 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
         historyIndexRef.current = newStack.length - 1;
 
         notifyHistoryChange();
+        onCanvasChangeRef.current?.(jsonStr);
       };
 
-      // Save initial empty state
-      const initialJson = JSON.stringify(canvasInstance.toJSON());
-      historyStackRef.current = [initialJson];
-      historyIndexRef.current = 0;
-      notifyHistoryChange();
+      // Load initial state asynchronously if provided
+      const loadInitialState = async () => {
+        if (initialCanvasJson && initialCanvasJson !== "{}") {
+          isHandlingHistoryRef.current = true;
+          try {
+            await canvasInstance.loadFromJSON(JSON.parse(initialCanvasJson));
+            canvasInstance.renderAll();
+          } catch (err) {
+            console.error("Error loading initial canvas state: ", err);
+          } finally {
+            isHandlingHistoryRef.current = false;
+          }
+        }
+        
+        // Save initial state in the history stack
+        const initialJson = JSON.stringify(canvasInstance.toJSON());
+        historyStackRef.current = [initialJson];
+        historyIndexRef.current = 0;
+        notifyHistoryChange();
+      };
+
+      loadInitialState();
 
       // Event Listeners for History Snapshotting
       canvasInstance.on("path:created", () => {
@@ -236,7 +263,7 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
           fabricCanvasRef.current = null;
         }
       };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Effect to configure modes on activeTool change
     useEffect(() => {
