@@ -1,14 +1,15 @@
 import React, { useRef, useState } from 'react'
 import { useJournalStore } from '../../store/useJournalStore'
 import JournalCanvas from './JournalCanvas'
+import AntiGravityStickers from './AntiGravityStickers'
+import UnsentVentBox from './UnsentVentBox'
 import JournalToolbar from './JournalToolbar'
 import AutosaveIndicator from './AutosaveIndicator'
 import ReflectionPanel from './ReflectionPanel'
 import AmbientSoundPlayer from './AmbientSoundPlayer'
 import PaperTexturePicker from './PaperTexturePicker'
 import PatternTimeline from './PatternTimeline'
-import PageNavigator from './PageNavigator'
-import { ArrowLeft, ShieldCheck, Download, Trash2, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Sparkles, BookOpen, Lock } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
@@ -22,6 +23,8 @@ export default function JournalWorkspace() {
   const [confirmAction, setConfirmAction] = useState(null) // null | 'deletePage' | 'clearAll'
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
+
+  const [activeWorkspaceMode, setActiveWorkspaceMode] = useState('canvas') // 'canvas' | 'antigravity' | 'vent'
 
   const handleAddSticker = (sticker) => {
     if (canvasComponentRef.current) {
@@ -154,7 +157,7 @@ export default function JournalWorkspace() {
             <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '18px', color: '#984343' }}>
               TrueNorth
             </span>
-            <span style={{ fontSize: '12px', color: '#8a6a5f', marginLeft: '8px' }}>— Digital Scrapbook</span>
+            <span style={{ fontSize: '12px', color: '#8A7B70', marginLeft: '8px' }}>— Digital Planner &amp; Reflection</span>
           </div>
         </div>
 
@@ -212,65 +215,86 @@ export default function JournalWorkspace() {
         </div>
       </header>
 
-      {confirmAction && (
+      {/* Workspace Mode Switcher (Canvas vs Floating Sanctuary vs Unsent Vent Box) */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
         <div
           style={{
-            maxWidth: '1240px',
-            margin: '0 auto',
-            padding: '14px 28px',
-            background: '#FDF2F2',
-            borderBottom: '1px solid #F3D6D6',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '14px',
-            flexWrap: 'wrap',
+            display: 'inline-flex',
+            background: '#EFE8DE',
+            padding: '4px',
+            borderRadius: '24px',
+            border: '1px solid #E2D9CF',
+            gap: '4px',
           }}
         >
-          <AlertTriangle size={18} color="#B3413D" style={{ flexShrink: 0 }} />
-          <span style={{ fontSize: '13px', color: '#7A2E2B', flex: 1, minWidth: '220px' }}>
-            {confirmAction === 'deletePage'
-              ? 'Delete this page? This cannot be undone.'
-              : 'Clear all journal data — every page, pattern, and reflection? This cannot be undone.'}
-          </span>
           <button
-            onClick={() => setConfirmAction(null)}
+            onClick={() => setActiveWorkspaceMode('canvas')}
             style={{
-              background: '#FFFFFF',
-              border: '1px solid #E5C9C9',
-              color: '#7A2E2B',
-              borderRadius: '16px',
-              padding: '6px 14px',
-              fontSize: '12px',
-              fontWeight: 500,
-              cursor: 'pointer',
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirmAction}
-            style={{
-              background: '#B3413D',
+              background: activeWorkspaceMode === 'canvas' ? '#FFFDF9' : 'transparent',
+              color: activeWorkspaceMode === 'canvas' ? '#C4715A' : '#6B5E55',
               border: 'none',
-              color: '#FFFFFF',
-              borderRadius: '16px',
-              padding: '6px 14px',
-              fontSize: '12px',
+              borderRadius: '20px',
+              padding: '8px 16px',
+              fontSize: '13px',
               fontWeight: 600,
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: activeWorkspaceMode === 'canvas' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
             }}
           >
-            {confirmAction === 'deletePage' ? 'Delete Page' : 'Clear Everything'}
+            <BookOpen size={15} /> Journal Canvas
+          </button>
+
+          <button
+            onClick={() => setActiveWorkspaceMode('antigravity')}
+            style={{
+              background: activeWorkspaceMode === 'antigravity' ? '#FFFDF9' : 'transparent',
+              color: activeWorkspaceMode === 'antigravity' ? '#C4715A' : '#6B5E55',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: activeWorkspaceMode === 'antigravity' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+            }}
+          >
+            <Sparkles size={15} color="#C4715A" /> Floating Sanctuary 🌌
+          </button>
+
+          <button
+            onClick={() => setActiveWorkspaceMode('vent')}
+            style={{
+              background: activeWorkspaceMode === 'vent' ? '#FFFDF9' : 'transparent',
+              color: activeWorkspaceMode === 'vent' ? '#D9486B' : '#6B5E55',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: activeWorkspaceMode === 'vent' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+            }}
+          >
+            <Lock size={15} color="#D9486B" /> Unsent Vent Vault 🔒
           </button>
         </div>
-      )}
+      </div>
 
       {/* Main Workspace Grid */}
       <main
         className="tn-journal-main"
         style={{
           maxWidth: '1240px',
-          margin: '28px auto 0',
+          margin: '24px auto 0',
           padding: '0 24px',
           display: 'grid',
           gridTemplateColumns: '1fr 380px',
@@ -278,24 +302,25 @@ export default function JournalWorkspace() {
           alignItems: 'start',
         }}
       >
-        {/* Left Column: Canvas & Toolbar */}
+        {/* Left Column: Canvas, Floating Sanctuary, or Unsent Vent Vault */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <JournalToolbar
-              onAddSticker={handleAddSticker}
-              onAddWashiTape={handleAddWashiTape}
-              onClearCanvas={handleClearCanvas}
-              onExportPdf={handleExportPdf}
-              onUndo={handleUndo}
-              onRedo={handleRedo}
-              canUndo={canUndo}
-              canRedo={canRedo}
-            />
-          </div>
+          {activeWorkspaceMode === 'canvas' && (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <JournalToolbar
+                  onAddSticker={handleAddSticker}
+                  onAddWashiTape={handleAddWashiTape}
+                  onClearCanvas={handleClearCanvas}
+                  onExportPdf={handleExportPdf}
+                />
+              </div>
+              <JournalCanvas ref={canvasComponentRef} />
+            </>
+          )}
 
-          <JournalCanvas ref={canvasComponentRef} onHistoryChange={handleHistoryChange} />
+          {activeWorkspaceMode === 'antigravity' && <AntiGravityStickers />}
 
-          <PageNavigator />
+          {activeWorkspaceMode === 'vent' && <UnsentVentBox />}
         </div>
 
         {/* Right Column: AI Reflection & Pattern Timeline */}
