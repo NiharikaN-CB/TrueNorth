@@ -1,3 +1,4 @@
+import { useJournalStore } from './store/useJournalStore'
 import Nav from './components/Nav.jsx'
 import Hero from './components/Hero.jsx'
 import CycleStrip from './components/CycleStrip.jsx'
@@ -7,9 +8,16 @@ import Flow from './components/Flow.jsx'
 import Privacy from './components/Privacy.jsx'
 import Closing from './components/Closing.jsx'
 import Footer from './components/Footer.jsx'
+import JournalWorkspace from './components/journal/JournalWorkspace.jsx'
 import './App.css'
 
 export default function App() {
+  const currentView = useJournalStore((state) => state.currentView)
+
+  if (currentView === 'journal') {
+    return <JournalWorkspace />
+  }
+
   return (
     <>
       <Nav />
@@ -24,3 +32,4 @@ export default function App() {
     </>
   )
 }
+
