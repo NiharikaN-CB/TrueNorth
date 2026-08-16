@@ -53,6 +53,14 @@ This file tracks the active roadmaps, technical achievements, and completed feat
 *   **Ephemeral Session Reflections:** Saved reflection results in a React local session state array to avoid expanding the IndexedDB storage schema unnecessarily.
 *   **Tone & Terminology Guard:** Banned clinical/absolute labels ("toxic", "narcissistic") in prompts, framing observations tentatively. Labeled red flags in the UI as **"Observations to consider"** for a supportive, self-guided reflection experience.
 
+### Phase 5 — Pattern Recognition
+*   **Minimal Storage Schema:** Added `patternLogs: PatternLog[]` array to the Zustand store, persisting only reflection dates and normalized emotion tags in IndexedDB. Discarded summaries, full reflections, and questions, preserving privacy boundaries.
+*   **Deduplication & Normalization:** Implemented a deduplication parser that trims, lowercases, and groups emotion strings. Guarantees that an emotion is counted at most once per reflection session.
+*   **Single Dispatch Execution:** Wired `addPatternLog` purely inside the client-side Reflect click action handler upon successful validation. Disabled button inputs during execution to prevent React re-renders or double-clicks from duplicating logs.
+*   **Private Client-Side Analytics:** Built local frequency aggregates and tentative observation metrics dynamically on the client, generating zero network queries. Shows recurring-emotion observations only after at least 2 reflection logs exist.
+*   **Safe Clear History:** Configured confirmation modals warning that clearing history affects analytics only, leaving journal pages, drawings, and text content completely untouched.
+*   **Insights Dashboard Page (`/patterns`):** Created the double-page scrapbook patterns layout displaying totals, emotion frequency bars, dynamic tentative observation lists, and safe reset options.
+
 ---
 
 ## 🛠️ Commands & Configs

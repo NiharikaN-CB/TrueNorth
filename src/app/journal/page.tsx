@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { JournalCanvasRef } from "@/components/journal/JournalCanvas";
 import { get, set } from "idb-keyval";
-import { useJournalStore } from "@/lib/storage/journal-storage";
+import { useJournalStore, type PatternLog } from "@/lib/storage/journal-storage";
 import type { Reflection } from "@/app/api/reflect/route";
 import ReflectionPanel from "@/components/reflection/ReflectionPanel";
 
@@ -24,7 +24,8 @@ import {
   RotateCcw, 
   RotateCw,
   Compass,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from "lucide-react";
 
 function extractTextFromCanvas(canvasJsonStr: string): string {
@@ -61,8 +62,11 @@ export default function JournalPage() {
   const {
     pages,
     currentPageIndex,
+    patternLogs,
     setPages,
     setCurrentPageIndex,
+    setPatternLogs,
+    addPatternLog,
     updatePageCanvas,
     createPage,
   } = useJournalStore();
@@ -71,6 +75,7 @@ export default function JournalPage() {
   useEffect(() => {
     interface StoredJournalState {
       pages?: string[];
+      patternLogs?: PatternLog[];
     }
     const loadState = async () => {
       try {
@@ -78,15 +83,18 @@ export default function JournalPage() {
         const storedObj = stored as StoredJournalState;
         if (storedObj && typeof storedObj === "object" && Array.isArray(storedObj.pages)) {
           setPages(storedObj.pages);
+          setPatternLogs(storedObj.patternLogs || []);
           setReflections(new Array(storedObj.pages.length).fill(null));
         } else {
           setPages(["{}"]);
           setReflections([null]);
+          setPatternLogs([]);
         }
       } catch (err) {
         console.error("Failed to read IndexedDB:", err);
         setPages(["{}"]);
         setReflections([null]);
+        setPatternLogs([]);
         setAutosaveStatus("offline");
       } finally {
         setCurrentPageIndex(0); // Always default to Page 1 on reload
@@ -94,7 +102,7 @@ export default function JournalPage() {
       }
     };
     loadState();
-  }, [setPages, setCurrentPageIndex]);
+  }, [setPages, setCurrentPageIndex, setPatternLogs]);
 
   // Debounced Autosave
   useEffect(() => {
@@ -107,7 +115,7 @@ export default function JournalPage() {
 
     const timer = setTimeout(async () => {
       try {
-        await set("truenorth-journal-state", { pages });
+        await set("truenorth-journal-state", { pages, patternLogs });
         setAutosaveStatus("saved");
       } catch (err) {
         console.error("Autosave write failed:", err);
@@ -125,7 +133,7 @@ export default function JournalPage() {
       clearTimeout(statusTimer);
       clearTimeout(timer);
     };
-  }, [pages, hasHydrated]);
+  }, [pages, patternLogs, hasHydrated]);
 
   const handleHistoryChange = (undoAvailable: boolean, redoAvailable: boolean) => {
     setCanUndo(undoAvailable);
@@ -198,6 +206,11 @@ export default function JournalPage() {
         updated[currentPageIndex] = payload;
         return updated;
       });
+
+      // Add reflection emotions to the pattern logs
+      if (payload.emotions && Array.isArray(payload.emotions)) {
+        addPatternLog(payload.emotions);
+      }
     } catch (err) {
       console.error("Reflection API call failed:", err);
       const errorMsg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
@@ -228,9 +241,18 @@ export default function JournalPage() {
           Back to Portal
         </Link>
         
-        <div className="inline-flex items-center gap-1.5 text-xs text-[#984343]/60 font-semibold tracking-wider uppercase bg-white/40 px-3 py-1 rounded-full border border-[#D79B95]/30">
-          <Compass className="w-3.5 h-3.5" />
-          TrueNorth Journal
+        <div className="flex items-center gap-2">
+          <Link 
+            href="/patterns" 
+            className="inline-flex items-center gap-1.5 text-xs text-[#527d82] hover:text-[#426569] transition-colors font-bold uppercase tracking-wider bg-white/50 hover:bg-white/80 px-3 py-1.5 rounded-full border border-[#91BDC2]/40 shadow-2xs cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 shrink-0 text-[#91BDC2]" />
+            <span>Insights & Patterns</span>
+          </Link>
+          <div className="inline-flex items-center gap-1.5 text-xs text-[#984343]/60 font-semibold tracking-wider uppercase bg-white/40 px-3 py-1.5 rounded-full border border-[#D79B95]/30">
+            <Compass className="w-3.5 h-3.5" />
+            TrueNorth Journal
+          </div>
         </div>
       </header>
 
