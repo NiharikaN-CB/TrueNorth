@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Lock, Heart, ShieldCheck, Sparkles, Send, Trash2, CheckCircle2 } from 'lucide-react'
+import { Lock, Heart, ShieldCheck, Sparkles, Key, CheckCircle2, Trash2, Eye } from 'lucide-react'
 
 export default function UnsentVentBox() {
   const [ventText, setVentText] = useState('')
   const [isSealed, setIsSealed] = useState(false)
+  const [showPeek, setShowPeek] = useState(false)
   const [reflection, setReflection] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -11,14 +12,13 @@ export default function UnsentVentBox() {
     if (!ventText.trim()) return
     setIsProcessing(true)
     setIsSealed(true)
+    setShowPeek(false)
 
     // Simulate gentle wellness reflection with safety guardrails
     setTimeout(() => {
       setReflection({
         summary:
           "Expressing these raw thoughts here keeps your peace intact. You are holding your boundaries with dignity instead of acting out of immediate anxious urgency.",
-        validation:
-          "It is completely natural to want reassurance, but taking this breather gives you clarity.",
         gentleAffirmation: "Your worth isn't determined by a fast reply. You are in control.",
       })
       setIsProcessing(false)
@@ -28,6 +28,7 @@ export default function UnsentVentBox() {
   const handleReset = () => {
     setVentText('')
     setIsSealed(false)
+    setShowPeek(false)
     setReflection(null)
   }
 
@@ -44,12 +45,13 @@ export default function UnsentVentBox() {
         margin: '0 auto',
       }}
     >
+      {/* Header */}
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '14px',
+          marginBottom: '16px',
           paddingBottom: '12px',
           borderBottom: '1px dashed #E2D9CF',
         }}
@@ -58,8 +60,8 @@ export default function UnsentVentBox() {
           <div
             style={{
               background: '#FFE3EA',
-              width: '36px',
-              height: '36px',
+              width: '38px',
+              height: '38px',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
@@ -70,10 +72,10 @@ export default function UnsentVentBox() {
           </div>
           <div>
             <h3 style={{ fontFamily: "'Playfair Display', serif", margin: 0, fontSize: '18px', color: '#2C3E35' }}>
-              The Unsent Text Vent Vault 💌
+              The Unsent Text Vent Vault 🔒
             </h3>
             <span style={{ fontSize: '12px', color: '#8A7B70' }}>
-              Type out the text you want to send but shouldn't (yet). 100% private &amp; local.
+              Store the text you shouldn't send in your private treasure chest.
             </span>
           </div>
         </div>
@@ -90,8 +92,44 @@ export default function UnsentVentBox() {
             borderRadius: '12px',
           }}
         >
-          <ShieldCheck size={14} /> Never Sent Anywhere
+          <ShieldCheck size={14} /> 100% Private &amp; Local
         </div>
+      </div>
+
+      {/* Interactive Treasure Chest Showcase */}
+      <div
+        style={{
+          background: 'linear-gradient(180deg, #FAF4ED 0%, #FFFDF9 100%)',
+          border: '1px solid #EDE3D7',
+          borderRadius: '20px',
+          padding: '20px',
+          textAlign: 'center',
+          marginBottom: '20px',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ fontSize: '64px', lineHeight: 1, filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.1))' }}>
+          {!isSealed ? '🧰' : '🔐'}
+        </div>
+
+        <div
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 700,
+            color: '#2C3E35',
+            fontSize: '16px',
+            marginTop: '8px',
+          }}
+        >
+          {!isSealed ? 'Your Treasure Vault is Open ✨' : 'Treasure Chest Locked & Sealed 🔒'}
+        </div>
+
+        <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#8A7B70' }}>
+          {!isSealed
+            ? 'Write down your unsent thoughts below and lock them away safely.'
+            : 'Your message is safely stored inside the chest. You avoided sending an impulsive text!'}
+        </p>
       </div>
 
       {!isSealed ? (
@@ -99,7 +137,7 @@ export default function UnsentVentBox() {
           <textarea
             value={ventText}
             onChange={(e) => setVentText(e.target.value)}
-            placeholder="Type your unsent message here freely... Say everything on your mind without worrying about how it sounds."
+            placeholder="Type your unsent message freely... Say everything on your mind without worrying about how it sounds."
             rows={4}
             style={{
               width: '100%',
@@ -126,7 +164,7 @@ export default function UnsentVentBox() {
             }}
           >
             <span style={{ fontSize: '12px', color: '#8A7B70', fontStyle: 'italic' }}>
-              ✨ Sealing this text holds your boundaries &amp; protects your emotional peace.
+              ✨ Sealing this text holds your boundaries &amp; protects your peace.
             </span>
 
             <button
@@ -149,7 +187,7 @@ export default function UnsentVentBox() {
                 boxShadow: ventText.trim() ? '0 4px 14px rgba(217, 72, 107, 0.3)' : 'none',
               }}
             >
-              <Lock size={15} /> Seal &amp; Hold Vault 🔒
+              <Key size={15} /> Lock in Treasure Chest 🔒
             </button>
           </div>
         </div>
@@ -170,34 +208,73 @@ export default function UnsentVentBox() {
               <CheckCircle2 size={20} color="#D9486B" />
               <div>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#D9486B' }}>
-                  Text Sealed Safely in Local Vault 🔒
+                  Unsent Text Sealed in Treasure Chest 🧰✨
                 </div>
                 <div style={{ fontSize: '12px', color: '#8A5844', marginTop: '2px' }}>
-                  You got it out of your system without texting him impulsively.
+                  Safely locked in local memory. You held your peace!
                 </div>
               </div>
             </div>
 
-            <button
-              onClick={handleReset}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#8A7B70',
-                cursor: 'pointer',
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
-            >
-              <Trash2 size={15} /> Clear Vault
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setShowPeek(!showPeek)}
+                style={{
+                  background: '#F4ECE1',
+                  border: '1px solid #E2D9CF',
+                  borderRadius: '12px',
+                  padding: '6px 12px',
+                  color: '#8A5844',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontWeight: 500,
+                }}
+              >
+                <Eye size={14} /> {showPeek ? 'Hide Text' : 'Peek Inside 🗝️'}
+              </button>
+
+              <button
+                onClick={handleReset}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#8A7B70',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <Trash2 size={14} /> Clear
+              </button>
+            </div>
           </div>
 
+          {showPeek && (
+            <div
+              style={{
+                background: '#FFFBF5',
+                border: '1px dashed #E2D9CF',
+                borderRadius: '14px',
+                padding: '14px 16px',
+                fontFamily: "'Playfair Display', serif",
+                fontSize: '14px',
+                color: '#3A423D',
+                fontStyle: 'italic',
+                lineHeight: '1.6',
+              }}
+            >
+              "{ventText}"
+            </div>
+          )}
+
           {isProcessing ? (
-            <div style={{ textAlign: 'center', padding: '20px', color: '#D9486B', fontSize: '13px' }}>
-              <span>Generating gentle reflection... ✨</span>
+            <div style={{ textAlign: 'center', padding: '16px', color: '#D9486B', fontSize: '13px' }}>
+              <span>Locking chest &amp; generating gentle validation... ✨</span>
             </div>
           ) : (
             reflection && (
