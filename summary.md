@@ -37,6 +37,22 @@ This file tracks the active roadmaps, technical achievements, and completed feat
 *   **Auto-update parent on Canvas modifications:** Wired the canvas `onCanvasChange` prop to trigger parent updates on drawing, typing, and eraser modifications.
 *   **Accessible Navigation Controls:** Connected center Previous and Next page controls with appropriate disabled states and created a functional "New Page +" CTA button to append blank canvas templates.
 
+### Phase 3 — Local Persistence & Autosave
+*   **State & Storage Libraries:** Installed `zustand` (v5.0.3) for global in-memory state management and `idb-keyval` (v6.2.1) for asynchronous, browser-local IndexedDB storage.
+*   **Zustand Store:** Created global state manager [journal-storage.ts](file:///c:/Users/komal/Documents/MY%20CODES/@Projects/TrueNorth-Part4/src/lib/storage/journal-storage.ts) to manage `pages` and `currentPageIndex`.
+*   **Hydration Guard Flow:** Built a client-only mounting lifecycle guard (`hasHydrated`) to display a loading skeleton while reading from IndexedDB, preventing server-client pre-rendering warnings or database overwrite conflicts.
+*   **Debounced Autosave (1s):** Implemented a debounced saving mechanism watching Zustand changes (scoped only to the `pages` content array to avoid unnecessary writes on page switches) that updates IndexedDB after 1000ms.
+*   **Visual Save Status Indicator:** Designed a premium header indicator displaying real-time database write statuses (`Saving...`, `Saved locally ✓`, `Error saving ⚠`, `Offline`).
+*   **Error Boundaries:** Configured fallbacks to gracefully recover from empty, malformed, or unavailable IndexedDB storage without corrupting in-memory user sessions.
+
+### Phase 4 — AI Reflection
+*   **Next.js Server-Side API (`/api/reflect`):** Created the server-side API route POST endpoint. Keeps Google Gemini API Key (`GEMINI_API_KEY`) strictly server-side, authenticating requests via the `x-goog-api-key` header.
+*   **Zero-Dependency AI REST Client:** Configured native `fetch` POST requests querying Google Gemini (`gemini-2.5-flash` model family), passing a strict `responseSchema` to enforce JSON schema content returns.
+*   **Structured Output Type Validation:** Added a robust custom type validator to parse and verify that the structured AI response contains the summary, emotions array, questions, and redFlags (modeled as observational considerations).
+*   **Fabric.js Canvas Text Extractor:** Implemented client-side parser to extract text strings from canvas `itext` and `text` objects, completely filtering out coordinates, drawings, and metadata.
+*   **Ephemeral Session Reflections:** Saved reflection results in a React local session state array to avoid expanding the IndexedDB storage schema unnecessarily.
+*   **Tone & Terminology Guard:** Banned clinical/absolute labels ("toxic", "narcissistic") in prompts, framing observations tentatively. Labeled red flags in the UI as **"Observations to consider"** for a supportive, self-guided reflection experience.
+
 ---
 
 ## 🛠️ Commands & Configs

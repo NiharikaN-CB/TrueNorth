@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { JournalCanvasRef } from "@/components/journal/JournalCanvas";
+import { get, set } from "idb-keyval";
+import { useJournalStore } from "@/lib/storage/journal-storage";
+import type { Reflection } from "@/app/api/reflect/route";
+import ReflectionPanel from "@/components/reflection/ReflectionPanel";
 
 const JournalCanvas = dynamic(
   () => import("@/components/journal/JournalCanvas").then((mod) => mod.JournalCanvas),
@@ -17,19 +21,111 @@ import {
   CheckSquare, 
   ArrowLeft, 
   ArrowRight, 
-  Sparkles, 
   RotateCcw, 
   RotateCw,
-  Compass
+  Compass,
+  AlertCircle
 } from "lucide-react";
+
+function extractTextFromCanvas(canvasJsonStr: string): string {
+  interface FabricObject {
+    type?: string;
+    text?: string;
+  }
+  try {
+    const data = JSON.parse(canvasJsonStr) as { objects?: FabricObject[] };
+    if (data && Array.isArray(data.objects)) {
+      return data.objects
+        .filter((obj) => (obj.type === "itext" || obj.type === "text") && typeof obj.text === "string")
+        .map((obj) => (obj.text || "").trim())
+        .filter((text: string) => text.length > 0 && text !== "Write here...")
+        .join("\n");
+    }
+  } catch {}
+  return "";
+}
 
 export default function JournalPage() {
   const [selectedTool, setSelectedTool] = useState<string>("pen");
   const canvasRef = useRef<JournalCanvasRef>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
-  const [pages, setPages] = useState<string[]>(["{}"]);
-  const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
+  const [hasHydrated, setHasHydrated] = useState(false);
+  const [autosaveStatus, setAutosaveStatus] = useState<"saving" | "saved" | "error" | "offline">("saved");
+
+  // Ephemeral AI reflection states (resets on browser reload)
+  const [reflections, setReflections] = useState<(Reflection | null)[]>([]);
+  const [isReflecting, setIsReflecting] = useState(false);
+  const [reflectionError, setReflectionError] = useState<string | null>(null);
+
+  const {
+    pages,
+    currentPageIndex,
+    setPages,
+    setCurrentPageIndex,
+    updatePageCanvas,
+    createPage,
+  } = useJournalStore();
+
+  // Mount -> Load from IndexedDB
+  useEffect(() => {
+    interface StoredJournalState {
+      pages?: string[];
+    }
+    const loadState = async () => {
+      try {
+        const stored = await get("truenorth-journal-state");
+        const storedObj = stored as StoredJournalState;
+        if (storedObj && typeof storedObj === "object" && Array.isArray(storedObj.pages)) {
+          setPages(storedObj.pages);
+          setReflections(new Array(storedObj.pages.length).fill(null));
+        } else {
+          setPages(["{}"]);
+          setReflections([null]);
+        }
+      } catch (err) {
+        console.error("Failed to read IndexedDB:", err);
+        setPages(["{}"]);
+        setReflections([null]);
+        setAutosaveStatus("offline");
+      } finally {
+        setCurrentPageIndex(0); // Always default to Page 1 on reload
+        setHasHydrated(true);
+      }
+    };
+    loadState();
+  }, [setPages, setCurrentPageIndex]);
+
+  // Debounced Autosave
+  useEffect(() => {
+    if (!hasHydrated) return;
+
+    // Toggle status to 'saving' in next tick to avoid cascading render warning
+    const statusTimer = setTimeout(() => {
+      setAutosaveStatus("saving");
+    }, 0);
+
+    const timer = setTimeout(async () => {
+      try {
+        await set("truenorth-journal-state", { pages });
+        setAutosaveStatus("saved");
+      } catch (err) {
+        console.error("Autosave write failed:", err);
+        try {
+          await set("truenorth-test-write", "test");
+        } catch {
+          setAutosaveStatus("offline");
+          return;
+        }
+        setAutosaveStatus("error");
+      }
+    }, 1000);
+
+    return () => {
+      clearTimeout(statusTimer);
+      clearTimeout(timer);
+    };
+  }, [pages, hasHydrated]);
 
   const handleHistoryChange = (undoAvailable: boolean, redoAvailable: boolean) => {
     setCanUndo(undoAvailable);
@@ -37,16 +133,12 @@ export default function JournalPage() {
   };
 
   const handleCanvasChange = (json: string) => {
-    setPages((prevPages) => {
-      const updated = [...prevPages];
-      updated[currentPageIndex] = json;
-      return updated;
-    });
+    updatePageCanvas(currentPageIndex, json);
   };
 
   const handleCreatePage = () => {
-    setPages((prevPages) => [...prevPages, "{}"]);
-    setCurrentPageIndex(pages.length);
+    createPage();
+    setReflections((prev) => [...prev, null]);
     setCanUndo(false);
     setCanRedo(false);
   };
@@ -64,6 +156,54 @@ export default function JournalPage() {
       setCurrentPageIndex(currentPageIndex + 1);
       setCanUndo(false);
       setCanRedo(false);
+    }
+  };
+
+  const handleReflect = async () => {
+    const textarea = document.getElementById("mock-journal-entry") as HTMLTextAreaElement;
+    const textareaText = textarea ? textarea.value.trim() : "";
+    const canvasText = extractTextFromCanvas(pages[currentPageIndex]);
+    const combinedText = [canvasText, textareaText].filter(Boolean).join("\n\n").trim();
+
+    // Client-side validation checks
+    if (!combinedText) {
+      setReflectionError("Please write down some thoughts in your journal before reflecting.");
+      return;
+    }
+
+    if (combinedText.length > 10000) {
+      setReflectionError("Your entry exceeds the maximum reflection limit of 10,000 characters.");
+      return;
+    }
+
+    setIsReflecting(true);
+    setReflectionError(null);
+
+    try {
+      const response = await fetch("/api/reflect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: combinedText }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || "Failed to generate reflection.");
+      }
+
+      setReflections((prev) => {
+        const updated = [...prev];
+        updated[currentPageIndex] = payload;
+        return updated;
+      });
+    } catch (err) {
+      console.error("Reflection API call failed:", err);
+      const errorMsg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setReflectionError(errorMsg);
+    } finally {
+      setIsReflecting(false);
     }
   };
 
@@ -90,7 +230,7 @@ export default function JournalPage() {
         
         <div className="inline-flex items-center gap-1.5 text-xs text-[#984343]/60 font-semibold tracking-wider uppercase bg-white/40 px-3 py-1 rounded-full border border-[#D79B95]/30">
           <Compass className="w-3.5 h-3.5" />
-          TrueNorth Journal (Mock)
+          TrueNorth Journal
         </div>
       </header>
 
@@ -112,24 +252,51 @@ export default function JournalPage() {
             <div className="flex justify-between items-baseline border-b border-[#D79B95]/30 pb-4 mb-6">
               <span className="font-serif italic text-sm text-[#D79B95] font-semibold">{today}</span>
               
-              {/* Mock autosave status */}
-              <span className="font-sans text-[11px] text-[#527d82] bg-[#91BDC2]/20 px-2.5 py-0.5 rounded-full font-medium border border-[#91BDC2]/30 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#527d82] animate-pulse"></span>
-                Saved locally ✓
-              </span>
+              {/* Dynamic autosave status */}
+              {autosaveStatus === "saving" && (
+                <span className="font-sans text-[11px] text-[#527d82] bg-[#91BDC2]/20 px-2.5 py-0.5 rounded-full font-medium border border-[#91BDC2]/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#527d82] animate-pulse"></span>
+                  Saving...
+                </span>
+              )}
+              {autosaveStatus === "saved" && (
+                <span className="font-sans text-[11px] text-[#527d82] bg-[#91BDC2]/20 px-2.5 py-0.5 rounded-full font-medium border border-[#91BDC2]/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#527d82]"></span>
+                  Saved locally ✓
+                </span>
+              )}
+              {autosaveStatus === "error" && (
+                <span className="font-sans text-[11px] text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full font-medium border border-amber-300 flex items-center gap-1 animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                  Error saving ⚠
+                </span>
+              )}
+              {autosaveStatus === "offline" && (
+                <span className="font-sans text-[11px] text-zinc-600 bg-zinc-100 px-2.5 py-0.5 rounded-full font-medium border border-zinc-300 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+                  Offline (Saved in-memory)
+                </span>
+              )}
             </div>
 
-            {/* Dotted Canvas Surface (Dynamic Fabric.js Component) */}
-            <div className="h-[380px] w-full">
-              <JournalCanvas 
-                key={currentPageIndex}
-                initialCanvasJson={pages[currentPageIndex]}
-                onCanvasChange={handleCanvasChange}
-                activeTool={selectedTool} 
-                onHistoryChange={handleHistoryChange} 
-                ref={canvasRef} 
-              />
-            </div>
+            {/* Hydration / loading guard */}
+            {!hasHydrated ? (
+              <div className="h-[380px] w-full flex flex-col items-center justify-center border border-[#D79B95]/20 rounded-xl bg-[#F1E4D9]/10">
+                <div className="w-6 h-6 border-2 border-[#984343] border-t-transparent rounded-full animate-spin mb-2"></div>
+                <span className="text-xs font-sans text-[#984343]/60 font-semibold tracking-wide">Loading journal...</span>
+              </div>
+            ) : (
+              <div className="h-[380px] w-full">
+                <JournalCanvas 
+                  key={currentPageIndex}
+                  initialCanvasJson={pages[currentPageIndex]}
+                  onCanvasChange={handleCanvasChange}
+                  activeTool={selectedTool} 
+                  onHistoryChange={handleHistoryChange} 
+                  ref={canvasRef} 
+                />
+              </div>
+            )}
           </div>
 
           {/* Page Navigation and Undo/Redo toolbar (Mock) */}
@@ -231,25 +398,37 @@ export default function JournalPage() {
           {/* Action Button and Reflection Placeholder Container */}
           <div className="space-y-6 mt-6">
             
-            {/* Reflect button (Mock action) */}
+            {/* Non-blocking Reflection Error alert banner */}
+            {reflectionError && (
+              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-sans text-rose-800 flex items-center gap-2 animate-pulse">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-700" />
+                <span>{reflectionError}</span>
+              </div>
+            )}
+
+            {/* Reflect button */}
             <button 
               type="button" 
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-[#984343] hover:bg-[#803838] active:scale-99 text-[#FDFBF7] font-sans font-bold text-base transition-all cursor-pointer shadow-md"
+              onClick={handleReflect}
+              disabled={isReflecting}
+              className={`w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-sans font-bold text-base transition-all shadow-md ${
+                isReflecting 
+                  ? "bg-[#984343]/60 text-[#FDFBF7]/80 cursor-not-allowed" 
+                  : "bg-[#984343] hover:bg-[#803838] active:scale-99 text-[#FDFBF7] cursor-pointer"
+              }`}
             >
-              Reflect ✦
+              {isReflecting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-[#FDFBF7] border-t-transparent rounded-full animate-spin shrink-0"></span>
+                  <span>Generating reflection...</span>
+                </>
+              ) : (
+                "Reflect ✦"
+              )}
             </button>
 
-            {/* Mock Reflection Panel Section */}
-            <div className="border border-dashed border-[#D79B95]/50 bg-[#F7D7CD]/10 rounded-xl p-5 space-y-3 opacity-60">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#D79B95] uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 shrink-0" />
-                <span>Reflection Companion</span>
-              </div>
-              <div className="space-y-2 font-serif text-xs text-[#984343]/70 leading-relaxed">
-                <p className="font-bold text-sm italic text-[#984343]/90">Your reflection will appear here...</p>
-                <p>When you fill in the journal and click Reflect, TrueNorth will provide a gentle summary, emotion tags, grounding questions, and gentle observations to bring focus back to you.</p>
-              </div>
-            </div>
+            {/* AI Reflection Presentation Panel */}
+            <ReflectionPanel reflection={reflections[currentPageIndex] || null} />
 
           </div>
 
