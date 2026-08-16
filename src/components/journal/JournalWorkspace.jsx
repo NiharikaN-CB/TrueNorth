@@ -2,13 +2,14 @@ import React, { useRef, useState } from 'react'
 import { useJournalStore } from '../../store/useJournalStore'
 import JournalCanvas from './JournalCanvas'
 import AntiGravityStickers from './AntiGravityStickers'
+import UnsentVentBox from './UnsentVentBox'
 import JournalToolbar from './JournalToolbar'
 import AutosaveIndicator from './AutosaveIndicator'
 import ReflectionPanel from './ReflectionPanel'
 import AmbientSoundPlayer from './AmbientSoundPlayer'
 import PaperTexturePicker from './PaperTexturePicker'
 import PatternTimeline from './PatternTimeline'
-import { ArrowLeft, ShieldCheck, Sparkles, BookOpen } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Sparkles, BookOpen, Lock } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
@@ -16,7 +17,7 @@ export default function JournalWorkspace() {
   const openLanding = useJournalStore((state) => state.openLanding)
   const canvasComponentRef = useRef(null)
 
-  const [activeWorkspaceMode, setActiveWorkspaceMode] = useState('canvas') // 'canvas' | 'antigravity'
+  const [activeWorkspaceMode, setActiveWorkspaceMode] = useState('canvas') // 'canvas' | 'antigravity' | 'vent'
 
   const handleAddSticker = (sticker) => {
     if (canvasComponentRef.current) {
@@ -129,7 +130,7 @@ export default function JournalWorkspace() {
         </div>
       </header>
 
-      {/* Workspace Mode Switcher (Canvas vs Anti-Gravity Physics) */}
+      {/* Workspace Mode Switcher (Canvas vs Floating Sanctuary vs Unsent Vent Box) */}
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
         <div
           style={{
@@ -138,6 +139,7 @@ export default function JournalWorkspace() {
             padding: '4px',
             borderRadius: '24px',
             border: '1px solid #E2D9CF',
+            gap: '4px',
           }}
         >
           <button
@@ -147,7 +149,7 @@ export default function JournalWorkspace() {
               color: activeWorkspaceMode === 'canvas' ? '#C4715A' : '#6B5E55',
               border: 'none',
               borderRadius: '20px',
-              padding: '8px 18px',
+              padding: '8px 16px',
               fontSize: '13px',
               fontWeight: 600,
               cursor: 'pointer',
@@ -167,7 +169,7 @@ export default function JournalWorkspace() {
               color: activeWorkspaceMode === 'antigravity' ? '#C4715A' : '#6B5E55',
               border: 'none',
               borderRadius: '20px',
-              padding: '8px 18px',
+              padding: '8px 16px',
               fontSize: '13px',
               fontWeight: 600,
               cursor: 'pointer',
@@ -178,6 +180,26 @@ export default function JournalWorkspace() {
             }}
           >
             <Sparkles size={15} color="#C4715A" /> Floating Sanctuary 🌌
+          </button>
+
+          <button
+            onClick={() => setActiveWorkspaceMode('vent')}
+            style={{
+              background: activeWorkspaceMode === 'vent' ? '#FFFDF9' : 'transparent',
+              color: activeWorkspaceMode === 'vent' ? '#D9486B' : '#6B5E55',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: activeWorkspaceMode === 'vent' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+            }}
+          >
+            <Lock size={15} color="#D9486B" /> Unsent Vent Vault 🔒
           </button>
         </div>
       </div>
@@ -194,9 +216,9 @@ export default function JournalWorkspace() {
           alignItems: 'start',
         }}
       >
-        {/* Left Column: Canvas or Anti-Gravity Physics Arena */}
+        {/* Left Column: Canvas, Floating Sanctuary, or Unsent Vent Vault */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          {activeWorkspaceMode === 'canvas' ? (
+          {activeWorkspaceMode === 'canvas' && (
             <>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <JournalToolbar
@@ -208,9 +230,11 @@ export default function JournalWorkspace() {
               </div>
               <JournalCanvas ref={canvasComponentRef} />
             </>
-          ) : (
-            <AntiGravityStickers />
           )}
+
+          {activeWorkspaceMode === 'antigravity' && <AntiGravityStickers />}
+
+          {activeWorkspaceMode === 'vent' && <UnsentVentBox />}
         </div>
 
         {/* Right Column: AI Reflection & Pattern Timeline */}
