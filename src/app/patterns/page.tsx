@@ -118,7 +118,7 @@ export default function PatternsPage() {
       <header className="flex justify-between items-center w-full max-w-6xl mx-auto mb-6 px-2">
         <Link 
           href="/journal" 
-          className="inline-flex items-center gap-1.5 text-[#984343] hover:text-[#803838] transition-colors font-medium text-sm group cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-[#984343] hover:text-[#803838] transition-colors font-medium text-sm group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-2"
         >
           <ArrowLeft className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
           Back to Journal
@@ -249,7 +249,7 @@ export default function PatternsPage() {
                 type="button"
                 onClick={() => setShowConfirmReset(true)}
                 disabled={totalReflections === 0}
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-sans font-bold border transition-all ${
+                className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-sans font-bold border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${
                   totalReflections === 0
                     ? "text-stone-400 bg-stone-50 border-stone-200 cursor-not-allowed"
                     : "text-[#984343] bg-white border-[#D79B95]/30 hover:bg-[#984343]/5 cursor-pointer"
@@ -273,14 +273,14 @@ export default function PatternsPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmReset(false)}
-                    className="px-3 py-1.5 rounded bg-white hover:bg-stone-50 text-stone-600 border border-stone-200 text-[11px] font-sans font-semibold shadow-2xs transition-all cursor-pointer"
+                    className="px-3 py-1.5 rounded bg-white hover:bg-stone-50 text-stone-600 border border-stone-200 text-[11px] font-sans font-semibold shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleClearHistory}
-                    className="px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-sans font-bold shadow-sm transition-all cursor-pointer"
+                    className="px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-sans font-bold shadow-sm transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1"
                   >
                     Confirm Clear
                   </button>

@@ -343,7 +343,7 @@ export default function JournalPage() {
       <header className="flex justify-between items-center w-full max-w-6xl mx-auto mb-6 px-2">
         <Link 
           href="/" 
-          className="inline-flex items-center gap-1.5 text-[#984343] hover:text-[#803838] transition-colors font-medium text-sm group cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-[#984343] hover:text-[#803838] transition-colors font-medium text-sm group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-2"
         >
           <ArrowLeft className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
           Back to Portal
@@ -352,7 +352,7 @@ export default function JournalPage() {
         <div className="flex items-center gap-2">
           <Link 
             href="/patterns" 
-            className="inline-flex items-center gap-1.5 text-xs text-[#527d82] hover:text-[#426569] transition-colors font-bold uppercase tracking-wider bg-white/50 hover:bg-white/80 px-3 py-1.5 rounded-full border border-[#91BDC2]/40 shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs text-[#527d82] hover:text-[#426569] transition-colors font-bold uppercase tracking-wider bg-white/50 hover:bg-white/80 px-3 py-1.5 rounded-full border border-[#91BDC2]/40 shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#91BDC2] focus-visible:ring-offset-2"
           >
             <Sparkles className="w-3.5 h-3.5 shrink-0 text-[#91BDC2]" />
             <span>Insights & Patterns</span>
@@ -459,7 +459,7 @@ export default function JournalPage() {
                 title="Undo" 
                 onClick={() => canvasRef.current?.undo()}
                 disabled={!canUndo} 
-                className={`p-2 rounded-lg transition-all border ${canUndo ? "text-[#984343] border-[#D79B95]/30 hover:bg-[#F7D7CD]/30 cursor-pointer" : "text-[#984343]/30 border-[#D79B95]/10 cursor-not-allowed"}`}
+                className={`p-2 rounded-lg transition-all border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${canUndo ? "text-[#984343] border-[#D79B95]/30 hover:bg-[#F7D7CD]/30 cursor-pointer" : "text-[#984343]/30 border-[#D79B95]/10 cursor-not-allowed"}`}
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
@@ -467,7 +467,7 @@ export default function JournalPage() {
                 title="Redo" 
                 onClick={() => canvasRef.current?.redo()}
                 disabled={!canRedo} 
-                className={`p-2 rounded-lg transition-all border ${canRedo ? "text-[#984343] border-[#D79B95]/30 hover:bg-[#F7D7CD]/30 cursor-pointer" : "text-[#984343]/30 border-[#D79B95]/10 cursor-not-allowed"}`}
+                className={`p-2 rounded-lg transition-all border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${canRedo ? "text-[#984343] border-[#D79B95]/30 hover:bg-[#F7D7CD]/30 cursor-pointer" : "text-[#984343]/30 border-[#D79B95]/10 cursor-not-allowed"}`}
               >
                 <RotateCw className="w-4 h-4" />
               </button>
@@ -480,7 +480,7 @@ export default function JournalPage() {
                 title="Previous Page" 
                 onClick={handlePreviousPage}
                 disabled={currentPageIndex === 0} 
-                className={`p-1.5 rounded-full transition-all ${
+                className={`p-1.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] ${
                   currentPageIndex > 0 
                     ? "text-[#984343] hover:bg-[#F7D7CD]/30 cursor-pointer" 
                     : "text-[#984343]/30 cursor-not-allowed"
@@ -496,7 +496,7 @@ export default function JournalPage() {
                 title="Next Page" 
                 onClick={handleNextPage}
                 disabled={currentPageIndex === pages.length - 1} 
-                className={`p-1.5 rounded-full transition-all ${
+                className={`p-1.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] ${
                   currentPageIndex < pages.length - 1 
                     ? "text-[#984343] hover:bg-[#F7D7CD]/30 cursor-pointer" 
                     : "text-[#984343]/30 cursor-not-allowed"
@@ -511,7 +511,7 @@ export default function JournalPage() {
               <button 
                 type="button"
                 onClick={handleCreatePage}
-                className="px-3 py-1.5 rounded-lg border border-[#D79B95]/30 text-xs font-sans font-bold text-[#984343] hover:bg-[#F7D7CD]/30 hover:shadow-xs active:scale-97 cursor-pointer transition-all flex items-center gap-1"
+                className="px-3 py-1.5 rounded-lg border border-[#D79B95]/30 text-xs font-sans font-bold text-[#984343] hover:bg-[#F7D7CD]/30 hover:shadow-xs active:scale-97 cursor-pointer transition-all flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1"
               >
                 New Page +
               </button>
@@ -538,7 +538,7 @@ export default function JournalPage() {
                   <button 
                     type="button" 
                     onClick={() => setIsChecklistOpen(false)}
-                    className="text-xs font-bold text-[#984343]/60 hover:text-[#984343] cursor-pointer bg-[#F7D7CD]/20 px-2 py-0.5 rounded transition-colors"
+                    className="text-xs font-bold text-[#984343]/60 hover:text-[#984343] cursor-pointer bg-[#F7D7CD]/20 px-2 py-0.5 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1"
                   >
                     Close ×
                   </button>
@@ -551,7 +551,7 @@ export default function JournalPage() {
                       key={cat}
                       type="button"
                       onClick={() => setActiveTab(cat)}
-                      className={`px-2.5 py-1 text-[9px] font-sans font-bold uppercase rounded-md transition-all cursor-pointer ${
+                      className={`px-2.5 py-1 text-[9px] font-sans font-bold uppercase rounded-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${
                         activeTab === cat 
                           ? "bg-[#984343] text-[#FDFBF7]" 
                           : "text-[#984343]/60 hover:bg-[#F7D7CD]/25"
@@ -563,7 +563,7 @@ export default function JournalPage() {
                 </div>
 
                 {/* Checklist Item Toggles Grid */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   {CHECKLIST_ITEMS[activeTab].map((item) => {
                     const isChecked = checklists[currentPageIndex]?.includes(item.id) || false;
                     return (
@@ -596,7 +596,7 @@ export default function JournalPage() {
               </label>
               <textarea
                 id="mock-journal-entry"
-                className="w-full h-40 p-4 border border-[#D79B95]/30 rounded-xl bg-white shadow-xs focus:outline-none focus:ring-1 focus:ring-[#984343]/50 focus:border-[#984343]/50 text-sm font-sans text-[#984343]/85 resize-none leading-relaxed"
+                className="w-full h-40 p-4 border border-[#D79B95]/30 rounded-xl bg-white shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#984343]/50 focus:border-[#984343]/50 text-sm font-sans text-[#984343]/85 resize-none leading-relaxed"
                 placeholder="Write what happened, how it made you feel, or list any thoughts lingering in your mind..."
                 defaultValue=""
               ></textarea>
@@ -624,7 +624,7 @@ export default function JournalPage() {
               type="button" 
               onClick={handleReflect}
               disabled={isReflecting}
-              className={`w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-sans font-bold text-base transition-all shadow-md ${
+              className={`w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-sans font-bold text-base transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-2 ${
                 isReflecting 
                   ? "bg-[#984343]/60 text-[#FDFBF7]/80 cursor-not-allowed" 
                   : "bg-[#984343] hover:bg-[#803838] active:scale-99 text-[#FDFBF7] cursor-pointer"
@@ -656,7 +656,7 @@ export default function JournalPage() {
           <button 
             type="button"
             onClick={() => setSelectedTool("pen")}
-            className={`p-3 rounded-full transition-all cursor-pointer relative group ${selectedTool === "pen" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
+            className={`p-3 rounded-full transition-all cursor-pointer relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${selectedTool === "pen" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
           >
             <Pen className="w-5 h-5" />
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[#984343] text-[#FDFBF7] text-[10px] font-sans uppercase font-bold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
@@ -667,7 +667,7 @@ export default function JournalPage() {
           <button 
             type="button"
             onClick={() => setSelectedTool("text")}
-            className={`p-3 rounded-full transition-all cursor-pointer relative group ${selectedTool === "text" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
+            className={`p-3 rounded-full transition-all cursor-pointer relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${selectedTool === "text" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
           >
             <Type className="w-5 h-5" />
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[#984343] text-[#FDFBF7] text-[10px] font-sans uppercase font-bold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
@@ -678,7 +678,7 @@ export default function JournalPage() {
           <button 
             type="button"
             onClick={() => setSelectedTool("eraser")}
-            className={`p-3 rounded-full transition-all cursor-pointer relative group ${selectedTool === "eraser" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
+            className={`p-3 rounded-full transition-all cursor-pointer relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${selectedTool === "eraser" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
           >
             <Eraser className="w-5 h-5" />
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[#984343] text-[#FDFBF7] text-[10px] font-sans uppercase font-bold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
@@ -694,7 +694,7 @@ export default function JournalPage() {
               setSelectedTool("stickers");
               setIsChecklistOpen(false);
             }}
-            className={`p-3 rounded-full transition-all cursor-pointer relative group ${selectedTool === "stickers" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
+            className={`p-3 rounded-full transition-all cursor-pointer relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${selectedTool === "stickers" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
           >
             <ImageIcon className="w-5 h-5" />
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[#984343] text-[#FDFBF7] text-[10px] font-sans uppercase font-bold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
@@ -710,7 +710,7 @@ export default function JournalPage() {
                 setSelectedTool("pen");
               }
             }}
-            className={`p-3 rounded-full transition-all cursor-pointer relative group ${isChecklistOpen ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
+            className={`p-3 rounded-full transition-all cursor-pointer relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-1 ${isChecklistOpen ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
           >
             <CheckSquare className="w-5 h-5" />
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[#984343] text-[#FDFBF7] text-[10px] font-sans uppercase font-bold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">

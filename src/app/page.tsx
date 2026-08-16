@@ -71,7 +71,7 @@ export default function Home() {
           <div className="w-full pt-4">
             <Link 
               href="/journal" 
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 w-full sm:w-auto rounded-full bg-[#984343] text-[#F1E4D9] font-sans font-bold text-lg transition-all duration-300 hover:bg-[#803838] hover:shadow-lg active:scale-98 group cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 w-full sm:w-auto rounded-full bg-[#984343] text-[#F1E4D9] font-sans font-bold text-lg transition-all duration-300 hover:bg-[#803838] hover:shadow-lg active:scale-98 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#984343] focus-visible:ring-offset-2"
             >
               Start Journaling
               <Sparkles className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
