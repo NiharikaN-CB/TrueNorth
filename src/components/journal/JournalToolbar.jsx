@@ -2,11 +2,20 @@ import React, { useState } from 'react'
 import { useJournalStore, WASHI_TAPES } from '../../store/useJournalStore'
 import StickerPicker from './StickerPicker'
 import ChecklistPanel from './ChecklistPanel'
-import { Edit3, Type, Eraser, Smile, Trash2, Tag, Download, CheckSquare } from 'lucide-react'
+import { Edit3, Type, Eraser, Smile, Trash2, Tag, Download, CheckSquare, Undo2, Redo2 } from 'lucide-react'
 
 const COLORS = ['#4A5568', '#984343', '#5f8b90', '#7B5E7B', '#8C6D46']
 
-export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCanvas, onExportPdf }) {
+export default function JournalToolbar({
+  onAddSticker,
+  onAddWashiTape,
+  onClearCanvas,
+  onExportPdf,
+  onUndo,
+  onRedo,
+  canUndo,
+  canRedo,
+}) {
   const activeTool = useJournalStore((state) => state.activeTool)
   const setActiveTool = useJournalStore((state) => state.setActiveTool)
   const brushColor = useJournalStore((state) => state.brushColor)
@@ -96,6 +105,46 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
           flexWrap: 'wrap',
         }}
       >
+        <button
+          onClick={onUndo}
+          disabled={!canUndo}
+          title="Undo"
+          aria-label="Undo last change"
+          style={{
+            background: 'transparent',
+            color: canUndo ? '#6B5E55' : '#D8CFC4',
+            border: 'none',
+            borderRadius: '20px',
+            padding: '8px',
+            cursor: canUndo ? 'pointer' : 'not-allowed',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Undo2 size={16} />
+        </button>
+
+        <button
+          onClick={onRedo}
+          disabled={!canRedo}
+          title="Redo"
+          aria-label="Redo last undone change"
+          style={{
+            background: 'transparent',
+            color: canRedo ? '#6B5E55' : '#D8CFC4',
+            border: 'none',
+            borderRadius: '20px',
+            padding: '8px',
+            cursor: canRedo ? 'pointer' : 'not-allowed',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Redo2 size={16} />
+        </button>
+
+        <div style={{ width: '1px', height: '20px', background: 'rgba(215, 155, 149, 0.3)', margin: '0 4px' }} />
+
         <button
           onClick={() => setActiveTool('pen')}
           style={{

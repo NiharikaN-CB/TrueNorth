@@ -3,9 +3,18 @@
 // and from the Vite dev-server middleware (vite.config.js) that emulates it
 // locally under `npm run dev`. Never log the raw journal text here — only
 // status codes and generic error context.
+//
+// Model note: gemini-2.5-flash returns 404 ("no longer available to new
+// users") for newly created API keys as of this writing, even though it's
+// still listed as "Stable" in general docs — that restriction is a
+// per-key/account gate, not something a docs page or a mocked test would
+// surface. Verified directly against the live API before picking this
+// replacement. gemini-3.6-flash is the current general-purpose flash-tier
+// model (fast, cost-effective, suitable for JSON generation) and is
+// confirmed working with a fresh key.
 
 const GEMINI_ENDPOINT =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent'
 
 const MAX_TEXT_LENGTH = 10000
 const REQUEST_TIMEOUT_MS = 20000

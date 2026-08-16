@@ -32,7 +32,8 @@ export default function PaperTexturePicker() {
                 color: isActive ? '#FFFFFF' : '#6B5E55',
                 border: 'none',
                 borderRadius: '12px',
-                padding: '3px 8px',
+                padding: '6px 8px',
+                minHeight: '24px',
                 fontSize: '11px',
                 cursor: 'pointer',
               }}

@@ -20,6 +20,8 @@ export default function JournalWorkspace() {
   const clearAllData = useJournalStore((state) => state.clearAllData)
   const canvasComponentRef = useRef(null)
   const [confirmAction, setConfirmAction] = useState(null) // null | 'deletePage' | 'clearAll'
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
 
   const handleAddSticker = (sticker) => {
     if (canvasComponentRef.current) {
@@ -37,6 +39,23 @@ export default function JournalWorkspace() {
     if (canvasComponentRef.current) {
       canvasComponentRef.current.clearCanvas()
     }
+  }
+
+  const handleUndo = () => {
+    if (canvasComponentRef.current) {
+      canvasComponentRef.current.undo()
+    }
+  }
+
+  const handleRedo = () => {
+    if (canvasComponentRef.current) {
+      canvasComponentRef.current.redo()
+    }
+  }
+
+  const handleHistoryChange = (nextCanUndo, nextCanRedo) => {
+    setCanUndo(nextCanUndo)
+    setCanRedo(nextCanRedo)
   }
 
   const handleExportPdf = async () => {
@@ -248,6 +267,7 @@ export default function JournalWorkspace() {
 
       {/* Main Workspace Grid */}
       <main
+        className="tn-journal-main"
         style={{
           maxWidth: '1240px',
           margin: '28px auto 0',
@@ -266,10 +286,14 @@ export default function JournalWorkspace() {
               onAddWashiTape={handleAddWashiTape}
               onClearCanvas={handleClearCanvas}
               onExportPdf={handleExportPdf}
+              onUndo={handleUndo}
+              onRedo={handleRedo}
+              canUndo={canUndo}
+              canRedo={canRedo}
             />
           </div>
 
-          <JournalCanvas ref={canvasComponentRef} />
+          <JournalCanvas ref={canvasComponentRef} onHistoryChange={handleHistoryChange} />
 
           <PageNavigator />
         </div>
