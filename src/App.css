@@ -4,9 +4,9 @@
   overflow: hidden;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 20% 15%, rgba(201, 143, 154, 0.18), transparent 28%),
-    radial-gradient(circle at 75% 10%, rgba(145, 189, 194, 0.22), transparent 30%),
-    linear-gradient(180deg, #f5efe9 0%, #f7ecdf 32%, #f7e7dc 100%);
+    radial-gradient(circle at 20% 15%, rgba(201, 143, 154, 0.12), transparent 28%),
+    radial-gradient(circle at 75% 10%, rgba(145, 189, 194, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(245, 239, 233, 0.18), rgba(247, 236, 223, 0.14));
 }
 
 .landing-shell::before {
@@ -14,14 +14,28 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 1;
   background:
-    radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.7), transparent 35%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02));
 }
 
 .landing-content {
   position: relative;
-  z-index: 1;
+  z-index: 3;
+}
+
+.landing-waves {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.96;
+  filter: saturate(1.1) contrast(1.08) brightness(1.04);
+}
+
+.landing-waves > div {
+  width: 100%;
+  height: 100%;
 }
 
 .nav {
