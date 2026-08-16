@@ -5,36 +5,19 @@ export default function Hero() {
   const openJournal = useJournalStore((state) => state.openJournal)
 
   return (
-    <section className="hero" style={{ position: 'relative', overflow: 'hidden' }}>
-      {/* Subtle beach video background loop placeholder */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          zIndex: 0,
-          opacity: 0.28,
-          pointerEvents: 'none',
-        }}
-      >
+    <section className="hero hero-scene">
+      <video className="hero-video" autoPlay loop muted playsInline>
         <source src="/hero-video.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
-      <div className="wrap hero-grid" style={{ position: 'relative', zIndex: 1 }}>
-        <div>
-          <div className="eyebrow" style={{ textShadow: '0 2px 6px rgba(241, 228, 217, 0.95), 0 0 20px rgba(241, 228, 217, 0.8)' }}>Private &amp; local, always</div>
-          <h1 style={{ textShadow: '0 2px 8px rgba(241, 228, 217, 0.95), 0 0 35px rgba(241, 228, 217, 0.8)' }}>
+      <div className="wrap hero-grid">
+        <div className="hero-copy">
+          <div className="eyebrow">Private &amp; local, always</div>
+          <h1>
             A calmer<br />way to <em>date.</em>
           </h1>
-          <p className="lede" style={{ textShadow: '0 2px 6px rgba(241, 228, 217, 0.95), 0 0 20px rgba(241, 228, 217, 0.8)' }}>
+          <p className="lede">
             Somewhere between the last text and the overthinking, there's a quieter question
             worth asking: not what they meant, but how you feel. TrueNorth is a private journal
             that helps you find out.
@@ -44,12 +27,12 @@ export default function Hero() {
               Start journaling — it's free
             </button>
           </div>
-          <p className="hero-note" style={{ marginTop: '20px' }}>
+          <p className="hero-note">
             No account. No cloud. <b>Everything stays on your device</b> until you choose to reflect.
           </p>
         </div>
 
-        <Reveal className="desk">
+        <Reveal className="desk hero-desk">
           <div className="tape t1" />
           <div className="journal-page">
             <div className="date">Tuesday, 9:47 PM</div>
