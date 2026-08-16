@@ -529,7 +529,7 @@ VLSI · Frontend · Product and Design
 
 * GitHub: [@Abhijna Laxmi](https://github.com/HanAbhi)
 * LinkedIn: [Abhijna Laxmi](www.linkedin.com/in/abhijna-laxmi-659143298)
-* 
+
 ---
 # Project Documentation
 
