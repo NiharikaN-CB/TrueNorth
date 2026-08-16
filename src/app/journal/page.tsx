@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import dynamic from "next/dynamic";
+
+const JournalCanvas = dynamic(
+  () => import("@/components/journal/JournalCanvas").then((mod) => mod.JournalCanvas),
+  { ssr: false }
+);
 import { 
   Pen, 
   Type, 
@@ -71,28 +77,9 @@ export default function JournalPage() {
               </span>
             </div>
 
-            {/* Dotted Canvas Mockup Surface */}
-            <div className="relative border border-[#D79B95]/20 rounded-xl bg-[#F1E4D9]/20 h-[380px] p-6 flex flex-col justify-center items-center text-center opacity-85 select-none pointer-events-none overflow-hidden" 
-                 style={{ backgroundImage: "radial-gradient(#D79B95 0.8px, transparent 0.8px)", backgroundSize: "16px 16px" }}>
-              
-              {/* Mock visual decorations (represents drawing, sticker) */}
-              <div className="absolute top-8 left-8 rotate-[-6deg] bg-white border border-[#D79B95]/20 shadow-md p-2 rounded-xs">
-                <div className="w-24 h-16 bg-[#F7D7CD]/30 flex items-center justify-center text-xs text-[#984343]/40 font-serif italic">Mock Drawing</div>
-                <div className="absolute -top-3 left-6 w-8 h-4 bg-[#91BDC2]/30 -rotate-12 border-l border-r border-[#91BDC2]/10"></div>
-              </div>
-
-              {/* Mock sticker in bottom right */}
-              <div className="absolute bottom-10 right-10 rotate-12 scale-110 opacity-70">
-                <div className="w-10 h-10 bg-radial-gradient from-[#F7D7CD] to-[#D79B95] rounded-full flex items-center justify-center text-lg shadow-sm">🌸</div>
-              </div>
-
-              {/* Empty state hint */}
-              <div className="max-w-xs space-y-2 relative z-10 bg-white/80 p-4 rounded-xl shadow-xs border border-[#D79B95]/20">
-                <p className="font-serif italic text-sm text-[#984343]/85">Creative Canvas Layer</p>
-                <p className="font-sans text-xs text-[#984343]/60">
-                  (In Phase 2, this will support writing text boxes, freehand sketch lines, erasers, and decorative sticker placements.)
-                </p>
-              </div>
+            {/* Dotted Canvas Surface (Dynamic Fabric.js Component) */}
+            <div className="h-[380px] w-full">
+              <JournalCanvas />
             </div>
           </div>
 
