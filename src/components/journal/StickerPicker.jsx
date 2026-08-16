@@ -32,8 +32,8 @@ export default function StickerPicker({ onSelectSticker, onClose }) {
   return (
     <div
       style={{
-        background: '#FFFDF9',
-        border: '1px solid #E2D9CF',
+        background: '#FBF5EC',
+        border: '1px solid rgba(215, 155, 149, 0.3)',
         borderRadius: '16px',
         padding: '16px',
         boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
@@ -53,7 +53,7 @@ export default function StickerPicker({ onSelectSticker, onClose }) {
           style={{
             fontFamily: "'Playfair Display', serif",
             fontWeight: 600,
-            color: '#2C3E35',
+            color: '#984343',
             fontSize: '15px',
           }}
         >
@@ -66,7 +66,7 @@ export default function StickerPicker({ onSelectSticker, onClose }) {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#8A7B70',
+              color: '#8a6a5f',
               fontSize: '14px',
             }}
           >
@@ -96,7 +96,7 @@ export default function StickerPicker({ onSelectSticker, onClose }) {
                 fontSize: '24px',
                 padding: '10px',
                 borderRadius: '12px',
-                border: isSelected ? '2px solid #C4715A' : '1px solid #F0ECE4',
+                border: isSelected ? '2px solid #984343' : '1px solid rgba(215, 155, 149, 0.25)',
                 background: isSelected ? '#FDF6F0' : '#FAFAFA',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
@@ -114,7 +114,7 @@ export default function StickerPicker({ onSelectSticker, onClose }) {
         style={{
           marginTop: '12px',
           fontSize: '11px',
-          color: '#8A7B70',
+          color: '#8a6a5f',
           textAlign: 'center',
           fontStyle: 'italic',
         }}

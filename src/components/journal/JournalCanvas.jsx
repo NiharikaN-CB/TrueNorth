@@ -276,7 +276,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
         maxWidth: '760px',
         width: '100%',
         margin: '0 auto',
-        color: paperTexture.textColor || '#2C3E35',
+        color: paperTexture.textColor || '#984343',
         transition: 'background-color 0.3s ease, border-color 0.3s ease',
       }}
     >
@@ -291,7 +291,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
         }}
       >
         <div>
-          <span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#8A7B70', letterSpacing: '1px' }}>
+          <span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#8a6a5f', letterSpacing: '1px' }}>
             Private Digital Planner • {paperTexture.name}
           </span>
           <h2 style={{ fontFamily: "'Playfair Display', serif", margin: '2px 0 0', fontSize: '20px' }}>

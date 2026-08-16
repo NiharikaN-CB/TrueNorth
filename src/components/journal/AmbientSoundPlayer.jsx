@@ -35,12 +35,12 @@ export default function AmbientSoundPlayer() {
         alignItems: 'center',
         gap: '6px',
         background: '#FAF7F2',
-        border: '1px solid #EDE6DD',
+        border: '1px solid rgba(215, 155, 149, 0.25)',
         borderRadius: '20px',
         padding: '4px 10px',
       }}
     >
-      <Volume2 size={14} color="#8A7B70" />
+      <Volume2 size={14} color="#8a6a5f" />
       <span style={{ fontSize: '12px', color: '#6B5E55', fontWeight: 500 }}>Soundscape:</span>
       <div style={{ display: 'flex', gap: '4px' }}>
         {SOUNDS.map((s) => {
@@ -50,8 +50,8 @@ export default function AmbientSoundPlayer() {
               key={s.id}
               onClick={() => handleSelectSound(s.id)}
               style={{
-                background: isActive ? '#C4715A' : 'transparent',
-                color: isActive ? '#FFFFFF' : '#8A7B70',
+                background: isActive ? '#984343' : 'transparent',
+                color: isActive ? '#FFFFFF' : '#8a6a5f',
                 border: 'none',
                 borderRadius: '12px',
                 padding: '3px 8px',

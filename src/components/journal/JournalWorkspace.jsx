@@ -74,8 +74,8 @@ export default function JournalWorkspace() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#FAF6F0',
-          color: '#8A7B70',
+          background: '#F1E4D9',
+          color: '#8a6a5f',
           fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
           fontSize: '14px',
         }}
@@ -89,8 +89,8 @@ export default function JournalWorkspace() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#FAF6F0',
-        color: '#2C3E35',
+        background: '#F1E4D9',
+        color: '#984343',
         fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         paddingBottom: '60px',
       }}
@@ -104,7 +104,7 @@ export default function JournalWorkspace() {
           padding: '14px 28px',
           background: 'rgba(255, 253, 249, 0.95)',
           backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid #EBE3D7',
+          borderBottom: '1px solid rgba(215, 155, 149, 0.3)',
           position: 'sticky',
           top: 0,
           zIndex: 40,
@@ -116,12 +116,12 @@ export default function JournalWorkspace() {
           <button
             onClick={openLanding}
             style={{
-              background: '#F4ECE1',
+              background: '#F7D7CD',
               border: 'none',
               borderRadius: '20px',
               padding: '8px 14px',
               fontSize: '13px',
-              color: '#8A5844',
+              color: '#8a6a5f',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -132,10 +132,10 @@ export default function JournalWorkspace() {
             <ArrowLeft size={16} /> Home
           </button>
           <div>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '18px', color: '#2C3E35' }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '18px', color: '#984343' }}>
               TrueNorth
             </span>
-            <span style={{ fontSize: '12px', color: '#8A7B70', marginLeft: '8px' }}>— Digital Scrapbook</span>
+            <span style={{ fontSize: '12px', color: '#8a6a5f', marginLeft: '8px' }}>— Digital Scrapbook</span>
           </div>
         </div>
 
@@ -149,8 +149,8 @@ export default function JournalWorkspace() {
               alignItems: 'center',
               gap: '4px',
               fontSize: '12px',
-              color: '#2C5741',
-              background: '#EAF4EE',
+              color: '#5f8b90',
+              background: 'rgba(145, 189, 194, 0.18)',
               padding: '4px 10px',
               borderRadius: '12px',
             }}
@@ -167,7 +167,7 @@ export default function JournalWorkspace() {
               fontSize: '12px',
               color: '#A85B5B',
               background: 'transparent',
-              border: '1px solid #EDE6DD',
+              border: '1px solid rgba(215, 155, 149, 0.25)',
               padding: '4px 10px',
               borderRadius: '12px',
               cursor: 'pointer',
@@ -182,7 +182,7 @@ export default function JournalWorkspace() {
               fontSize: '12px',
               color: '#A85B5B',
               background: 'transparent',
-              border: '1px solid #EDE6DD',
+              border: '1px solid rgba(215, 155, 149, 0.25)',
               padding: '4px 10px',
               borderRadius: '12px',
               cursor: 'pointer',

@@ -65,8 +65,8 @@ export default function ReflectionPanel() {
   return (
     <div
       style={{
-        background: '#FAF6F0',
-        border: '1px solid #EBE3D7',
+        background: '#F1E4D9',
+        border: '1px solid rgba(215, 155, 149, 0.3)',
         borderRadius: '20px',
         padding: '24px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
@@ -81,13 +81,13 @@ export default function ReflectionPanel() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Sparkles size={18} color="#C4715A" />
+          <Sparkles size={18} color="#984343" />
           <h3
             style={{
               fontFamily: "'Playfair Display', serif",
               margin: 0,
               fontSize: '18px',
-              color: '#2C3E35',
+              color: '#984343',
             }}
           >
             Gentle Reflection
@@ -100,7 +100,7 @@ export default function ReflectionPanel() {
           style={{
             background: isReflecting
               ? '#DCD3C7'
-              : 'linear-gradient(135deg, #C4715A 0%, #A85843 100%)',
+              : '#984343',
             color: '#FFFFFF',
             border: 'none',
             borderRadius: '24px',
@@ -108,7 +108,7 @@ export default function ReflectionPanel() {
             fontSize: '13px',
             fontWeight: 500,
             cursor: isReflecting ? 'wait' : 'pointer',
-            boxShadow: '0 4px 12px rgba(196, 113, 90, 0.25)',
+            boxShadow: '0 4px 12px rgba(152, 67, 67, 0.25)',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
@@ -137,22 +137,22 @@ export default function ReflectionPanel() {
       )}
 
       {!reflection && !isReflecting && !reflectionError && (
-        <p style={{ fontSize: '13px', color: '#8A7B70', lineHeight: '1.6', margin: 0 }}>
+        <p style={{ fontSize: '13px', color: '#8a6a5f', lineHeight: '1.6', margin: 0 }}>
           When you feel ready, press <b>Reflect ✦</b>. TrueNorth will offer a calm, non-judgmental
           mirror to help process your thoughts without giving unsolicited advice or diagnoses.
         </p>
       )}
 
       {isReflecting && (
-        <div style={{ textAlign: 'center', padding: '20px 0', color: '#A85843', fontSize: '14px' }}>
+        <div style={{ textAlign: 'center', padding: '20px 0', color: '#984343', fontSize: '14px' }}>
           <span>Reading gently with care... ✨</span>
         </div>
       )}
 
       {reflection && !isReflecting && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
-          <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '14px', border: '1px solid #F0ECE4' }}>
-            <p style={{ margin: 0, color: '#3A423D', fontSize: '14px', lineHeight: '1.6' }}>
+          <div style={{ background: '#FFFFFF', padding: '16px', borderRadius: '14px', border: '1px solid rgba(215, 155, 149, 0.25)' }}>
+            <p style={{ margin: 0, color: '#4A2E28', fontSize: '14px', lineHeight: '1.6' }}>
               {reflection.summary}
             </p>
           </div>
@@ -162,8 +162,8 @@ export default function ReflectionPanel() {
               <span
                 key={idx}
                 style={{
-                  background: '#F4ECE1',
-                  color: '#8A5844',
+                  background: '#F7D7CD',
+                  color: '#8a6a5f',
                   fontSize: '12px',
                   padding: '4px 10px',
                   borderRadius: '12px',
@@ -184,7 +184,7 @@ export default function ReflectionPanel() {
               padding: '12px 14px',
               borderRadius: '12px',
               fontSize: '13px',
-              color: '#2C5741',
+              color: '#5f8b90',
             }}
           >
             <Heart size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
@@ -219,7 +219,7 @@ export default function ReflectionPanel() {
                   gap: '6px',
                   fontSize: '11px',
                   fontWeight: 700,
-                  color: '#8A7B70',
+                  color: '#8a6a5f',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                   marginBottom: '8px',
@@ -242,7 +242,7 @@ export default function ReflectionPanel() {
               style={{
                 fontSize: '11px',
                 fontWeight: 700,
-                color: '#A85843',
+                color: '#984343',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
                 marginBottom: '6px',
@@ -282,7 +282,7 @@ export default function ReflectionPanel() {
               {reflection.redFlags.map((flag, idx) => (
                 <div key={idx} style={{ fontSize: '13px', color: '#4A423C', lineHeight: '1.5' }}>
                   <div>{flag.observation}</div>
-                  <div style={{ fontSize: '12px', color: '#8A7B70', marginTop: '2px' }}>{flag.reason}</div>
+                  <div style={{ fontSize: '12px', color: '#8a6a5f', marginTop: '2px' }}>{flag.reason}</div>
                 </div>
               ))}
             </div>

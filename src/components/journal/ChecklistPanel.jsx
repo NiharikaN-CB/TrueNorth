@@ -13,8 +13,8 @@ export default function ChecklistPanel({ onClose }) {
   return (
     <div
       style={{
-        background: '#FFFDF9',
-        border: '1px solid #E2D9CF',
+        background: '#FBF5EC',
+        border: '1px solid rgba(215, 155, 149, 0.3)',
         borderRadius: '16px',
         padding: '16px',
         boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
@@ -34,7 +34,7 @@ export default function ChecklistPanel({ onClose }) {
           style={{
             fontFamily: "'Playfair Display', serif",
             fontWeight: 600,
-            color: '#2C3E35',
+            color: '#984343',
             fontSize: '15px',
           }}
         >
@@ -43,7 +43,7 @@ export default function ChecklistPanel({ onClose }) {
         {onClose && (
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8A7B70', fontSize: '14px' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8a6a5f', fontSize: '14px' }}
           >
             ✕
           </button>
@@ -56,7 +56,7 @@ export default function ChecklistPanel({ onClose }) {
             key={cat.id}
             onClick={() => setActiveCategoryId(cat.id)}
             style={{
-              background: activeCategoryId === cat.id ? '#C4715A' : '#F4ECE1',
+              background: activeCategoryId === cat.id ? '#984343' : '#F7D7CD',
               color: activeCategoryId === cat.id ? '#FFFFFF' : '#6B5E55',
               border: 'none',
               borderRadius: '14px',
@@ -92,18 +92,18 @@ export default function ChecklistPanel({ onClose }) {
                 gap: '6px',
                 padding: '7px 9px',
                 borderRadius: '10px',
-                border: isChecked ? '1px solid #C4715A' : '1px solid #F0ECE4',
+                border: isChecked ? '1px solid #984343' : '1px solid rgba(215, 155, 149, 0.25)',
                 background: isChecked ? '#FDF3EF' : '#FAFAFA',
                 cursor: 'pointer',
                 fontSize: '12.5px',
-                color: '#3A423D',
+                color: '#4A2E28',
               }}
             >
               <input
                 type="checkbox"
                 checked={isChecked}
                 onChange={() => toggleChecklistItem(item.id)}
-                style={{ accentColor: '#C4715A', cursor: 'pointer' }}
+                style={{ accentColor: '#984343', cursor: 'pointer' }}
               />
               {item.label}
             </label>
@@ -111,7 +111,7 @@ export default function ChecklistPanel({ onClose }) {
         })}
       </div>
 
-      <div style={{ marginTop: '12px', fontSize: '11px', color: '#8A7B70', textAlign: 'center', fontStyle: 'italic' }}>
+      <div style={{ marginTop: '12px', fontSize: '11px', color: '#8a6a5f', textAlign: 'center', fontStyle: 'italic' }}>
         Entirely optional — check anything that fits, or skip it.
       </div>
     </div>

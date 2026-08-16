@@ -41,7 +41,7 @@ const FEATURES = [
     bg: 'var(--berry)',
     color: '#fff',
     title: 'Stickers & scrapbook details',
-    body: 'Roses, shells, washi tape, torn-paper edges — small, curated ways to make each page feel like yours, not a dashboard.',
+    body: 'Roses, shells, washi tape, polaroid charms — small, curated ways to make each page feel like yours, not a dashboard.',
     wide: true,
   },
 ]

@@ -28,7 +28,7 @@ export default function PageNavigator() {
     width: '30px',
     height: '30px',
     borderRadius: '50%',
-    border: '1px solid #EBE3D7',
+    border: '1px solid rgba(215, 155, 149, 0.3)',
     background: '#FFFFFF',
     color: enabled ? '#6B5E55' : '#D8CFC4',
     cursor: enabled ? 'pointer' : 'not-allowed',
@@ -60,7 +60,7 @@ export default function PageNavigator() {
         <ChevronRight size={16} />
       </button>
 
-      <div style={{ width: '1px', height: '18px', background: '#E2D9CF' }} />
+      <div style={{ width: '1px', height: '18px', background: 'rgba(215, 155, 149, 0.3)' }} />
 
       <button
         onClick={addPage}
@@ -71,8 +71,8 @@ export default function PageNavigator() {
           gap: '6px',
           fontSize: '12px',
           fontWeight: 500,
-          color: '#8A5844',
-          background: '#F4ECE1',
+          color: '#8a6a5f',
+          background: '#F7D7CD',
           border: 'none',
           borderRadius: '20px',
           padding: '7px 14px',

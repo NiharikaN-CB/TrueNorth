@@ -11,11 +11,11 @@ export default function AutosaveIndicator() {
         alignItems: 'center',
         gap: '6px',
         fontSize: '12px',
-        color: '#8A7B70',
+        color: '#8a6a5f',
         background: '#FAF7F2',
         padding: '4px 10px',
         borderRadius: '12px',
-        border: '1px solid #EDE6DD',
+        border: '1px solid rgba(215, 155, 149, 0.25)',
       }}
     >
       <span
