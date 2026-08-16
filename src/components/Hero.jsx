@@ -1,6 +1,9 @@
 import Reveal from './Reveal.jsx'
+import { useJournalStore } from '../store/useJournalStore'
 
 export default function Hero() {
+  const openJournal = useJournalStore((state) => state.openJournal)
+
   return (
     <section className="hero">
       <div className="wrap hero-grid">
@@ -15,9 +18,9 @@ export default function Hero() {
             that helps you find out.
           </p>
           <div className="hero-ctas">
-            <a href="#start" className="btn-primary" id="start">
+            <button onClick={openJournal} className="btn-primary" id="start">
               Start journaling — it's free
-            </a>
+            </button>
           </div>
           <p className="hero-note" style={{ marginTop: '20px' }}>
             No account. No cloud. <b>Everything stays on your device</b> until you choose to reflect.
