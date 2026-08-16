@@ -9,6 +9,33 @@ const SOUNDS = [
   { id: 'cafe', label: 'Cozy Cafe ☕', icon: Coffee },
 ]
 
+export const SPOTIFY_PLAYLISTS = [
+  {
+    name: 'Peaceful Piano 🎹',
+    url: 'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO',
+    desc: 'Soft, calming piano melodies for deep relaxation',
+    color: '#E8C5C8',
+  },
+  {
+    name: 'Lofi Chill Beats 🎧',
+    url: 'https://open.spotify.com/playlist/37i9dQZF1DX8UebfMyUZLW',
+    desc: 'Gentle, soothing lofi rhythms for reflection',
+    color: '#C5D8CD',
+  },
+  {
+    name: 'Deep Focus 🌊',
+    url: 'https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ',
+    desc: 'Calming ambient soundscapes & atmospheric music',
+    color: '#BEE3F8',
+  },
+  {
+    name: 'Acoustic Calm 🎸',
+    url: 'https://open.spotify.com/playlist/37i9dQZF1DX0SM0LYsmbMT',
+    desc: 'Quiet acoustic strings and warm ambient tunes',
+    color: '#E9D8FD',
+  },
+]
+
 export default function AmbientSoundPlayer() {
   const [activeSound, setActiveSound] = useState('none')
   const [volume, setVolume] = useState(0.3)
@@ -73,43 +100,43 @@ export default function AmbientSoundPlayer() {
       <button
         onClick={() => setShowSpotifyModal(!showSpotifyModal)}
         style={{
-          background: '#1DB954',
+          background: 'linear-gradient(135deg, #1DB954 0%, #179B45 100%)',
           color: '#FFFFFF',
           border: 'none',
           borderRadius: '20px',
-          padding: '5px 12px',
+          padding: '6px 14px',
           fontSize: '12px',
           fontWeight: 600,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          gap: '5px',
-          boxShadow: '0 2px 8px rgba(29, 185, 84, 0.25)',
+          gap: '6px',
+          boxShadow: '0 4px 12px rgba(29, 185, 84, 0.25)',
         }}
       >
-        <Music size={13} /> Spotify Calm 🎧
+        <Music size={14} /> Spotify Calm 🎧
       </button>
 
-      {/* Privacy-First Spotify Embed Popover */}
+      {/* Spotify Playlist Selection Popover */}
       {showSpotifyModal && (
         <div
           style={{
             position: 'absolute',
-            top: '42px',
+            top: '44px',
             right: '0',
             zIndex: 60,
-            background: '#FFFFFF',
+            background: '#FFFDF9',
             border: '1px solid #E2D9CF',
             borderRadius: '20px',
             padding: '16px',
-            boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+            boxShadow: '0 12px 36px rgba(0,0,0,0.12)',
             width: '320px',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Music size={16} color="#1DB954" />
-              <span style={{ fontWeight: 700, fontSize: '14px', color: '#2C3E35' }}>Spotify Calming Player</span>
+              <span style={{ fontWeight: 700, fontSize: '14px', color: '#2C3E35' }}>Spotify Calming Playlists</span>
             </div>
             <button
               onClick={() => setShowSpotifyModal(false)}
@@ -132,38 +159,36 @@ export default function AmbientSoundPlayer() {
               marginBottom: '12px',
             }}
           >
-            <ShieldCheck size={14} /> 100% Private — No Spotify login required
+            <ShieldCheck size={14} /> Opens directly in Spotify — 100% private
           </div>
 
-          <iframe
-            style={{ borderRadius: '12px' }}
-            src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8UebfMyUZLW?utm_source=generator"
-            width="100%"
-            height="152"
-            frameBorder="0"
-            allowFullScreen=""
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            title="Spotify Calm Playlist"
-          />
-
-          <div style={{ marginTop: '10px', textAlign: 'center' }}>
-            <a
-              href="https://open.spotify.com/playlist/37i9dQZF1DX8UebfMyUZLW"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontSize: '12px',
-                color: '#1DB954',
-                textDecoration: 'none',
-                fontWeight: 600,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
-            >
-              Open in Spotify App <ExternalLink size={12} />
-            </a>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {SPOTIFY_PLAYLISTS.map((pl) => (
+              <a
+                key={pl.name}
+                href={pl.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 12px',
+                  borderRadius: '14px',
+                  background: '#FAF7F2',
+                  border: '1px solid #EBE3D7',
+                  textDecoration: 'none',
+                  color: '#2C3E35',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#2C3E35' }}>{pl.name}</div>
+                  <div style={{ fontSize: '11px', color: '#8A7B70', marginTop: '2px' }}>{pl.desc}</div>
+                </div>
+                <ExternalLink size={14} color="#1DB954" style={{ flexShrink: 0, marginLeft: '8px' }} />
+              </a>
+            ))}
           </div>
         </div>
       )}
