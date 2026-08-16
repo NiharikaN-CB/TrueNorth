@@ -82,6 +82,41 @@ export const CHECKLIST_ITEMS = {
   ]
 } as const;
 
+export const STICKER_ASSETS = [
+  {
+    id: "sticker:rose",
+    name: "Rose",
+    svgDataUrl: "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyIDJDOS41IDIgNyAzLjUgNyA2LjVDNyA5LjUgMTAgMTIgMTIgMTRDMTQgMTIgMTcgOS41IDE3IDYuNUMxNyAzLjUgMTQuNSAyIDEyLDJaIiBmaWxsPSIjRDc5Qjk1Ii8+PHBhdGggZD0iTTEyIDZDMTEgNS41IDEwIDYgMTAgN0MxMCA4IDExLjUgOSAxMiAxMEMxMi41IDkgMTQgOCAxNCA3QzE0IDYgMTMgNS41IDEyLDZaIiBmaWxsPSIjOTg0MzQzIi8+PHBhdGggZD0iTTEyIDE0VjIyIiBzdHJva2U9IiM1MjdkODIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTTEyIDE3QzEwIDE3LjUgOSAxOSA5IDE5IiBzdHJva2U9IiM1MjdkODIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTTEyIDE5QzE0IDE5LjUgMTUgMjEgMTUgMjEiBzdHJva2U9IiM1MjdkODIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9zdmc+"
+  },
+  {
+    id: "sticker:seashell",
+    name: "Seashell",
+    svgDataUrl: "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyIDNDNyAzIDQgOCA0IDE0QzQgMTguNSA3LjUgMjAgMTIgMjBDMTYuNSAyMCAyMCAxOC41IDIwIDE0QzIwIDggMTcgMyAxMiAzWiIgZmlsbD0iIzkxQkRDMiIgc3Ryb2tlPSIjNTI3ZDgyIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0xMiAyMFYzIiBzdHJva2U9IiM1MjdkODIiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHBhdGggZD0iTTguNSAxOS41QzkuNSAxNiAxMCAxMSAxMiAzIiBzdHJva2U9IiM1MjdkODIiIHN0cm9rZS13aWR0aD0iMSIvPjxwYXRoIGQ9Ik0xNS41IDE5LjVDMTQuNSAxNiAxNCAxMSAxMiAzIiBzdHJva2U9IiM1MjdkODIiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg=="
+  },
+  {
+    id: "sticker:bow",
+    name: "Bow",
+    svgDataUrl: "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyIDEwQzEwIDcgNiA3IDYgMTBDNiAxMyAxMCAxMiAxMiAxMkMxNCAxMiAxOCAxMyAxOCAxMEMxOCA3IDE0IDcgMTIgMTBaIiBmaWxsPSIjRjdEN0NEIiBzdHJva2U9IiM5ODQzNDMiIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTEiIHI9IjIuNSIgZmlsbD0iI0Q3OUI5NSIgc3Ryb2tlPSIjOTg0MzQzIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0xMCAxM0w2IDIwIiBzdHJva2U9IiM5ODQzNDMiIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxwYXRoIGQ9Ik0xNCAxM0wxOCAyMCIgc3Ryb2tlPSIjOTg0MzQzIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg=="
+  },
+  {
+    id: "sticker:star",
+    name: "Star",
+    svgDataUrl: "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyIDJMMTQuOCA4LjZMMjIgOS4yTDE2LjUgMTRMMTguMiAyMUwxMiAxNy4yTDUuOCAyMUw3LjUgMTRMMiA5LjJMOS4yIDguNkwxMiAyWiIgZmlsbD0iI0YxRTREOSIgc3Ryb2tlPSIjOTg0MzQzIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg=="
+  },
+  {
+    id: "sticker:wave",
+    name: "Beach Wave",
+    svgDataUrl: "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIgMTdDNSAxNyA2IDEzIDkgMTNDMTIgMTMgMTMgMTcgMTYgMTdDMTkgMTcgMjAgMTMgMjIgMTMiIHN0cm9rZT0iIzkxQkRDMiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMiAxMkM1IDEyIDYgOCA5IDhDMTIgOCAxMyAxMiAxNiAxMkMxOTEyIDIwIDggMjIgOCIgc3Ryb2tlPSIjNTI3ZDgyIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg=="
+  },
+  {
+    id: "sticker:tape",
+    name: "Washi Tape",
+    svgDataUrl: "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjRDc5Qjk1IiBmaWxsLW9wYWNpdHk9IjAuNiIvPjxwYXRoIGQ9Ik0wIDBMMyA1TDAgMTBMMyAxNUwwIDIwIiBzdHJva2U9IiM5ODQzNDMiIiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNNTAgMEw0NyA1TDUwIDEwTDQ3IDE1TDUwIDEwMCIgc3Ryb2tlPSIjOTg0MzQzIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4="
+  }
+];
+
+
+
 
 export default function JournalPage() {
   const [selectedTool, setSelectedTool] = useState<string>("pen");
@@ -392,6 +427,28 @@ export default function JournalPage() {
                 />
               </div>
             )}
+
+            {/* Sticker Tray */}
+            {selectedTool === "stickers" && (
+              <div className="p-3.5 bg-white/75 border border-[#D79B95]/30 rounded-2xl shadow-inner flex items-center gap-4 overflow-x-auto select-none animate-fade-in border-dashed">
+                <span className="text-[10px] font-sans font-bold text-[#984343] uppercase tracking-wider shrink-0">Sticker Tray</span>
+                <div className="flex gap-3">
+                  {STICKER_ASSETS.map((sticker) => (
+                    <button
+                      key={sticker.id}
+                      type="button"
+                      onClick={() => canvasRef.current?.addSticker(sticker.svgDataUrl)}
+                      className="p-1 rounded-xl border border-[#D79B95]/20 bg-[#FDFBF7] hover:bg-[#F7D7CD]/20 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-3xs flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#984343]"
+                      title={`Add ${sticker.name} sticker`}
+                      aria-label={`Add ${sticker.name} decorative sticker`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={sticker.svgDataUrl} alt={sticker.name} className="w-8 h-8 pointer-events-none select-none" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Page Navigation and Undo/Redo toolbar (Mock) */}
@@ -633,7 +690,10 @@ export default function JournalPage() {
 
           <button 
             type="button"
-            onClick={() => setSelectedTool("stickers")}
+            onClick={() => {
+              setSelectedTool("stickers");
+              setIsChecklistOpen(false);
+            }}
             className={`p-3 rounded-full transition-all cursor-pointer relative group ${selectedTool === "stickers" ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
           >
             <ImageIcon className="w-5 h-5" />
@@ -641,10 +701,15 @@ export default function JournalPage() {
               Stickers
             </span>
           </button>
-
+ 
           <button 
             type="button"
-            onClick={() => setIsChecklistOpen((prev) => !prev)}
+            onClick={() => {
+              setIsChecklistOpen((prev) => !prev);
+              if (selectedTool === "stickers") {
+                setSelectedTool("pen");
+              }
+            }}
             className={`p-3 rounded-full transition-all cursor-pointer relative group ${isChecklistOpen ? "bg-[#984343] text-[#FDFBF7]" : "text-[#984343]/60 hover:text-[#984343] hover:bg-[#F7D7CD]/30"}`}
           >
             <CheckSquare className="w-5 h-5" />

@@ -68,6 +68,13 @@ This file tracks the active roadmaps, technical achievements, and completed feat
 *   **Aesthetic Tabbed UI:** Built lightweight tabs toggle buttons in the toolbar footer allowing users to check/uncheck checkboxes. Selected prompts feature soft background fills matching the seaside color scheme without resetting the narrative text area.
 *   **AI Consent & Privacy Boundaries:** Ensured checklist clicks only trigger local Zustand/IndexedDB saves, generating zero network calls. Appends selections to the Reflect prompt context as user-reported observations, instructing Gemini to keep interpretations tentative and non-clinical.
 
+### Phase 7 — Stickers & Decorative Assets
+*   **Fabric.js Loader & Isolation:** Extended the `JournalCanvasRef` with `addSticker(svgUrl)` to keep Fabric logic isolated. Loads vector elements using HTML `Image` elements to construct standard `FabricImage` instances.
+*   **Sticker Asset Library:** Hand-crafted six inline vector graphics (Rose, Seashell, Bow, Star, Beach Wave, and Washi Tape) mapped to static base64 SVG URLs, ensuring offline capability.
+*   **Scrapbook Sticker Picker Tray:** Built an aesthetic drawer tray component rendering below the canvas container. Sticker clicks automatically stamp the sticker centered relative to the canvas.
+*   **State Persistence & Transform Tracks:** Persists sticker objects and transformations (dragging, resizing, and rotation) through standard canvas JSON persistence using Zustand and IndexedDB autosave. Reverts sticker placements and adjustments in history stacks (Undo/Redo) by listening to `object:modified` triggers.
+*   **Accessibility Controls:** Assigned descriptive accessible titles, tabindex/focus selectors, and keyboard reachability triggers.
+
 ---
 
 ## 🛠️ Commands & Configs

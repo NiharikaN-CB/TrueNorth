@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
-import { Canvas, IText } from "fabric";
+import { Canvas, IText, FabricImage } from "fabric";
 
 export interface JournalCanvasRef {
   undo: () => void;
   redo: () => void;
+  addSticker: (svgUrl: string) => void;
 }
 
 interface JournalCanvasProps {
@@ -28,6 +29,7 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
     const isHandlingHistoryRef = useRef<boolean>(false);
     const onHistoryChangeRef = useRef<((canUndo: boolean, canRedo: boolean) => void) | undefined>(onHistoryChange);
     const onCanvasChangeRef = useRef<((json: string) => void) | undefined>(onCanvasChange);
+    const saveHistoryRef = useRef<() => void>(() => {});
 
     // Keep ref values up-to-date
     useEffect(() => {
@@ -93,6 +95,36 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
     useImperativeHandle(ref, () => ({
       undo,
       redo,
+      addSticker: (svgUrl: string) => {
+        const canvasInstance = fabricCanvasRef.current;
+        if (!canvasInstance) return;
+
+        const imgElement = document.createElement("img");
+        imgElement.src = svgUrl;
+        imgElement.onload = () => {
+          // Centered relative to current canvas dimensions
+          const canvasWidth = canvasInstance.width || 400;
+          const canvasHeight = canvasInstance.height || 350;
+          const imgWidth = imgElement.width || 80;
+          const imgHeight = imgElement.height || 80;
+
+          const img = new FabricImage(imgElement, {
+            left: canvasWidth / 2 - (imgWidth * 0.8) / 2,
+            top: canvasHeight / 2 - (imgHeight * 0.8) / 2,
+            scaleX: 0.8,
+            scaleY: 0.8,
+            cornerColor: "#984343",
+            cornerStrokeColor: "#D79B95",
+            transparentCorners: false,
+            cornerSize: 8,
+          });
+
+          canvasInstance.add(img);
+          canvasInstance.setActiveObject(img);
+          canvasInstance.renderAll();
+          saveHistoryRef.current();
+        };
+      },
     }));
 
     useEffect(() => {
@@ -136,6 +168,8 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
         notifyHistoryChange();
         onCanvasChangeRef.current?.(jsonStr);
       };
+
+      saveHistoryRef.current = saveHistory;
 
       // Load initial state asynchronously if provided
       const loadInitialState = async () => {
@@ -276,7 +310,7 @@ export const JournalCanvas = forwardRef<JournalCanvasRef, JournalCanvasProps>(
         canvasInstance.skipTargetFind = true;
         canvasInstance.discardActiveObject();
         canvasInstance.renderAll();
-      } else if (activeTool === "text") {
+      } else if (activeTool === "text" || activeTool === "stickers") {
         canvasInstance.isDrawingMode = false;
         canvasInstance.selection = true;
         canvasInstance.skipTargetFind = false;
