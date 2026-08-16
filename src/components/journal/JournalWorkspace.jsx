@@ -1,19 +1,22 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { useJournalStore } from '../../store/useJournalStore'
 import JournalCanvas from './JournalCanvas'
+import AntiGravityStickers from './AntiGravityStickers'
 import JournalToolbar from './JournalToolbar'
 import AutosaveIndicator from './AutosaveIndicator'
 import ReflectionPanel from './ReflectionPanel'
 import AmbientSoundPlayer from './AmbientSoundPlayer'
 import PaperTexturePicker from './PaperTexturePicker'
 import PatternTimeline from './PatternTimeline'
-import { ArrowLeft, ShieldCheck, Download } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Sparkles, BookOpen } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
 export default function JournalWorkspace() {
   const openLanding = useJournalStore((state) => state.openLanding)
   const canvasComponentRef = useRef(null)
+
+  const [activeWorkspaceMode, setActiveWorkspaceMode] = useState('canvas') // 'canvas' | 'antigravity'
 
   const handleAddSticker = (sticker) => {
     if (canvasComponentRef.current) {
@@ -101,7 +104,7 @@ export default function JournalWorkspace() {
             <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '18px', color: '#2C3E35' }}>
               TrueNorth
             </span>
-            <span style={{ fontSize: '12px', color: '#8A7B70', marginLeft: '8px' }}>— Digital Scrapbook</span>
+            <span style={{ fontSize: '12px', color: '#8A7B70', marginLeft: '8px' }}>— Digital Planner &amp; Reflection</span>
           </div>
         </div>
 
@@ -126,11 +129,64 @@ export default function JournalWorkspace() {
         </div>
       </header>
 
+      {/* Workspace Mode Switcher (Canvas vs Anti-Gravity Physics) */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            background: '#EFE8DE',
+            padding: '4px',
+            borderRadius: '24px',
+            border: '1px solid #E2D9CF',
+          }}
+        >
+          <button
+            onClick={() => setActiveWorkspaceMode('canvas')}
+            style={{
+              background: activeWorkspaceMode === 'canvas' ? '#FFFDF9' : 'transparent',
+              color: activeWorkspaceMode === 'canvas' ? '#C4715A' : '#6B5E55',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 18px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: activeWorkspaceMode === 'canvas' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+            }}
+          >
+            <BookOpen size={15} /> Journal Canvas
+          </button>
+
+          <button
+            onClick={() => setActiveWorkspaceMode('antigravity')}
+            style={{
+              background: activeWorkspaceMode === 'antigravity' ? '#FFFDF9' : 'transparent',
+              color: activeWorkspaceMode === 'antigravity' ? '#C4715A' : '#6B5E55',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 18px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: activeWorkspaceMode === 'antigravity' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+            }}
+          >
+            <Sparkles size={15} color="#C4715A" /> Anti-Gravity Floating Stickers 🌌
+          </button>
+        </div>
+      </div>
+
       {/* Main Workspace Grid */}
       <main
         style={{
           maxWidth: '1240px',
-          margin: '28px auto 0',
+          margin: '24px auto 0',
           padding: '0 24px',
           display: 'grid',
           gridTemplateColumns: '1fr 380px',
@@ -138,18 +194,23 @@ export default function JournalWorkspace() {
           alignItems: 'start',
         }}
       >
-        {/* Left Column: Canvas & Toolbar */}
+        {/* Left Column: Canvas or Anti-Gravity Physics Arena */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <JournalToolbar
-              onAddSticker={handleAddSticker}
-              onAddWashiTape={handleAddWashiTape}
-              onClearCanvas={handleClearCanvas}
-              onExportPdf={handleExportPdf}
-            />
-          </div>
-
-          <JournalCanvas ref={canvasComponentRef} />
+          {activeWorkspaceMode === 'canvas' ? (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <JournalToolbar
+                  onAddSticker={handleAddSticker}
+                  onAddWashiTape={handleAddWashiTape}
+                  onClearCanvas={handleClearCanvas}
+                  onExportPdf={handleExportPdf}
+                />
+              </div>
+              <JournalCanvas ref={canvasComponentRef} />
+            </>
+          ) : (
+            <AntiGravityStickers />
+          )}
         </div>
 
         {/* Right Column: AI Reflection & Pattern Timeline */}
