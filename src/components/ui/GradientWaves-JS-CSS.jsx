@@ -238,7 +238,6 @@ const GradientWaves = ({
     canvas.addEventListener('pointerleave', onPointerLeave);
 
     let raf = 0;
-    let isVisible = true;
     let isPageVisible = !document.hidden;
     const t0 = performance.now();
 
@@ -255,7 +254,7 @@ const GradientWaves = ({
     };
 
     const tryStart = () => {
-      if (isVisible && isPageVisible && raf === 0) raf = requestAnimationFrame(loop);
+      if (isPageVisible && raf === 0) raf = requestAnimationFrame(loop);
     };
     const tryStop = () => {
       if (raf !== 0) {
@@ -263,15 +262,6 @@ const GradientWaves = ({
         raf = 0;
       }
     };
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        isVisible = entry.isIntersecting;
-        isVisible ? tryStart() : tryStop();
-      },
-      { threshold: 0 }
-    );
-    io.observe(container);
 
     const onVisibility = () => {
       isPageVisible = !document.hidden;
@@ -284,7 +274,6 @@ const GradientWaves = ({
     return () => {
       tryStop();
       ro.disconnect();
-      io.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerleave', onPointerLeave);

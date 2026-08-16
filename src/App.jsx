@@ -21,42 +21,41 @@ export default function App() {
 
   return (
     <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh' }}>
-      {/* Landing Page Animated Waves Background */}
+      {/* Landing Page Animated Waves Background (Fixed, full-viewport behind all sections) */}
       <div 
         style={{ 
-          position: 'absolute', 
+          position: 'fixed', 
           top: 0, 
-          left: '50%', 
-          transform: 'translateX(-50%)', 
+          left: 0, 
+          width: '100vw', 
+          height: '100vh', 
           zIndex: 0, 
           pointerEvents: 'none',
           opacity: 0.78,
         }}
       >
-        <div style={{ width: '1080px', height: '1080px', position: 'relative' }}>
-          <GradientWaves
-            horizonColor="#E8D8D2"
-            waveColor="#C98F9A"
-            crestColor="#F8F1EA"
-            speed={0.15}
-            amplitude={1.7}
-            waveScale={0.6}
-            waveRatio={0.85}
-            swell={28.5}
-            turbulence={10.5}
-            tilt={1.05}
-            zoom={1}
-            height={5.5}
-            fogDepth={15}
-            detail="medium"
-            brightness={0.85}
-            opacity={0.78}
-            grain
-            grainIntensity={0.13}
-            mouseInteraction
-            parallaxStrength={0.59}
-          />
-        </div>
+        <GradientWaves
+          horizonColor="#E8D8D2"
+          waveColor="#C98F9A"
+          crestColor="#F8F1EA"
+          speed={0.15}
+          amplitude={1.7}
+          waveScale={0.6}
+          waveRatio={0.85}
+          swell={28.5}
+          turbulence={10.5}
+          tilt={1.05}
+          zoom={1}
+          height={5.5}
+          fogDepth={15}
+          detail="medium"
+          brightness={0.85}
+          opacity={0.78}
+          grain
+          grainIntensity={0.13}
+          mouseInteraction
+          parallaxStrength={0.59}
+        />
       </div>
 
       {/* Main Landing Content */}

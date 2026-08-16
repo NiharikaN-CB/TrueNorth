@@ -20,7 +20,7 @@ export default function Hero() {
           height: '100%',
           objectFit: 'cover',
           zIndex: 0,
-          opacity: 0.15,
+          opacity: 0.28,
           pointerEvents: 'none',
         }}
       >
@@ -30,11 +30,11 @@ export default function Hero() {
 
       <div className="wrap hero-grid" style={{ position: 'relative', zIndex: 1 }}>
         <div>
-          <div className="eyebrow">Private &amp; local, always</div>
-          <h1>
+          <div className="eyebrow" style={{ textShadow: '0 2px 6px rgba(241, 228, 217, 0.95), 0 0 20px rgba(241, 228, 217, 0.8)' }}>Private &amp; local, always</div>
+          <h1 style={{ textShadow: '0 2px 8px rgba(241, 228, 217, 0.95), 0 0 35px rgba(241, 228, 217, 0.8)' }}>
             A calmer<br />way to <em>date.</em>
           </h1>
-          <p className="lede">
+          <p className="lede" style={{ textShadow: '0 2px 6px rgba(241, 228, 217, 0.95), 0 0 20px rgba(241, 228, 217, 0.8)' }}>
             Somewhere between the last text and the overthinking, there's a quieter question
             worth asking: not what they meant, but how you feel. TrueNorth is a private journal
             that helps you find out.
