@@ -1,0 +1,12 @@
+.agent/rules/vibe.md
+AGENTS.md
+CLAUDE.md
+LOVABLE-INSTRUCTIONS.md
+MEMORY.md
+REVIEW-CHECKLIST.md
+agent_docs/code_patterns.md
+agent_docs/product_requirements.md
+agent_docs/project_brief.md
+agent_docs/tech_stack.md
+agent_docs/testing.md
+docs/README.md
