@@ -9,7 +9,7 @@ import Privacy from './components/Privacy.jsx'
 import Closing from './components/Closing.jsx'
 import Footer from './components/Footer.jsx'
 import JournalWorkspace from './components/journal/JournalWorkspace.jsx'
-import GradientWaves from './components/GradientWaves.jsx'
+import GradientWaves from './components/ui/GradientWaves-JS-CSS.jsx'
 import './App.css'
 
 export default function App() {
