@@ -2,13 +2,9 @@
 
 ## 🏗️ Active Phase & Goal
 
-**Current phase:** Phase 2 — Must-have MVP Features (Journal Workspace, Canvas & Improvisations Complete)
+**Current phase:** Phase 2 — Must-have MVP Features (Starting: Creative Canvas & Persistence)
 
-**Current branch:** `feature/journal-workspace-improvisations` (pushed to GitHub origin)
-
-**Goal:** Journal workspace with Zustand state, Fabric canvas, Kawaii/Coastal stickers, Washi Tapes, paper textures, soundscapes, pattern timeline, and PDF export is complete.
-
-**Stable Checkpoint:** `feature/journal-workspace-improvisations` (Commit `a6483d0`)
+**Goal:** Implement the creative journal canvas layer (Fabric.js text,Pen, Eraser, Stickers picker) and local persistence (autosave / Zustand / IndexedDB key-value).
 
 **Current state:** Phase 1 — Foundation is complete. The landing page and mock journal shell load reliably and compile cleanly. Local Git is set up and pushed to remote origin.
 
