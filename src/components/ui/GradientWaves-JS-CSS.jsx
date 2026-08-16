@@ -1,270 +1,343 @@
-import React, { useEffect, useRef } from 'react';
-import { Renderer, Camera, Transform, Program, Mesh, Geometry } from 'ogl';
+import { useEffect, useRef } from 'react';
+import { Renderer, Program, Mesh, Triangle } from 'ogl';
 
-function hexToRgb(hex) {
+const hexToRgb = hex => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? [
-    parseInt(result[1], 16) / 255,
-    parseInt(result[2], 16) / 255,
-    parseInt(result[3], 16) / 255
-  ] : [0, 0, 0];
+  if (!result) return [1, 1, 1];
+  return [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255];
+};
+
+const detailToSteps = detail => {
+  if (detail === 'low') return 40.0;
+  if (detail === 'high') return 110.0;
+  return 70.0;
+};
+
+const vertex = `#version 300 es
+in vec2 position;
+void main() {
+  gl_Position = vec4(position, 0.0, 1.0);
+}
+`;
+
+const fragment = `#version 300 es
+precision highp float;
+uniform vec2 iResolution;
+uniform float iTime;
+uniform float uSpeed;
+uniform float uAmplitude;
+uniform float uWaveScale;
+uniform float uWaveRatio;
+uniform float uSwell;
+uniform float uTurbulence;
+uniform float uTilt;
+uniform float uZoom;
+uniform float uHeight;
+uniform float uFogDepth;
+uniform float uSteps;
+uniform float uBrightness;
+uniform float uOpacity;
+uniform float uGrain;
+uniform float uGrainIntensity;
+uniform vec2 uMouse;
+uniform float uParallax;
+uniform bool uEnableMouse;
+uniform vec3 uHorizonColor;
+uniform vec3 uWaveColor;
+uniform vec3 uCrestColor;
+out vec4 fragColor;
+
+const float MAX_DIST = 20000.0;
+
+float hash21(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
 }
 
-export default function GradientWaves({
-  horizonColor = '#E8D8D2',
-  waveColor = '#C98F9A',
-  crestColor = '#F8F1EA',
-  speed = 0.15,
-  amplitude = 1.7,
+float plasma(vec3 r, vec2 freq, vec4 tc) {
+  float mx = r.x + tc.x;
+  mx += uSwell * sin((r.y + mx) / 20.0 + tc.y);
+  float my = r.y - tc.z;
+  my += uTurbulence * cos(r.x / 23.0 + tc.w);
+  return r.z - (sin(mx * freq.x) * uAmplitude + sin(my * freq.y) * uAmplitude + uHeight);
+}
+
+float raymarch(vec3 pos, vec3 dir, vec2 freq, vec4 tc) {
+  float dist = 0.0;
+  for (int i = 0; i < 128; i++) {
+    if (float(i) >= uSteps) break;
+    float dscene = plasma(pos + dist * dir, freq, tc);
+    if (abs(dscene) < 0.1) break;
+    dist += 0.9 * dscene;
+    if (!(abs(dist) < MAX_DIST)) return MAX_DIST;
+  }
+  return dist;
+}
+
+void main() {
+  float T = iTime * uSpeed;
+  vec2 freq = vec2(uWaveScale / 7.0, (uWaveScale * uWaveRatio) / 3.0);
+  vec4 tc = vec4(T / 0.130, T / 0.810, T / 0.200, T / 0.710);
+  float c, s;
+  float vfov = (3.14159 / 2.3) / max(uZoom, 0.05);
+  vec3 cam = vec3(0.0, 0.0, 30.0);
+  vec2 uv = (gl_FragCoord.xy / iResolution.xy) - 0.5;
+  uv.x *= iResolution.x / iResolution.y;
+  uv.y *= -1.0;
+
+  vec3 dir = vec3(0.0, 0.0, -1.0);
+  float ulen = length(uv);
+  float xrot = vfov * ulen;
+  c = cos(xrot); s = sin(xrot);
+  dir = mat3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c) * dir;
+  vec2 nuv = ulen > 1e-5 ? uv / ulen : vec2(1.0, 0.0);
+  c = nuv.x; s = nuv.y;
+  dir = mat3(c, -s, 0.0, s, c, 0.0, 0.0, 0.0, 1.0) * dir;
+  c = cos(uTilt); s = sin(uTilt);
+  dir = mat3(c, 0.0, s, 0.0, 1.0, 0.0, -s, 0.0, c) * dir;
+
+  if (uEnableMouse) {
+    float yaw = (uMouse.x - 0.5) * uParallax * 0.4;
+    float pitch = (uMouse.y - 0.5) * uParallax * 0.4;
+    c = cos(yaw); s = sin(yaw);
+    dir = mat3(c, 0.0, s, 0.0, 1.0, 0.0, -s, 0.0, c) * dir;
+    c = cos(pitch); s = sin(pitch);
+    dir = mat3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c) * dir;
+  }
+
+  float dist = raymarch(cam, dir, freq, tc);
+  vec3 pos = cam + dist * dir;
+
+  float t = clamp(uFogDepth / max(dist, 0.001), 0.0, 1.0);
+  vec3 body = mix(uWaveColor, uCrestColor, clamp(pos.z * 0.08 + 0.5, 0.0, 1.0));
+  vec3 col = mix(uHorizonColor, body, t);
+  col *= uBrightness;
+  col = clamp(col, 0.0, 1.0);
+
+  float alpha = clamp(t, 0.0, 1.0) * uOpacity;
+  if (uGrain > 0.5) {
+    float g = hash21(gl_FragCoord.xy + mod(iTime, 64.0) * 11.0);
+    alpha += (g - 0.5) * uGrainIntensity;
+  }
+  alpha = clamp(alpha, 0.0, 1.0);
+  fragColor = vec4(col * alpha, alpha);
+}
+`;
+
+const ctxMap = new WeakMap();
+
+const GradientWaves = ({
+  horizonColor = '#5227FF',
+  waveColor = '#FF9FFC',
+  crestColor = '#FFFFFF',
+  speed = 0.4,
+  amplitude = 2.5,
   waveScale = 0.6,
-  waveRatio = 0.85,
-  swell = 28.5,
-  turbulence = 10.5,
-  tilt = 1.05,
-  zoom = 1,
+  waveRatio = 0.9,
+  swell = 35,
+  turbulence = 20,
+  tilt = 1.11,
+  zoom = 1.0,
   height = 5.5,
   fogDepth = 15,
   detail = 'medium',
-  brightness = 0.85,
-  opacity = 0.78,
-  grain = true,
-  grainIntensity = 0.13,
+  brightness = 1.0,
+  opacity = 1.0,
   mouseInteraction = true,
-  parallaxStrength = 0.59
-}) {
+  parallaxStrength = 0.5,
+  grain = true,
+  grainIntensity = 0.05,
+  className = ''
+}) => {
   const containerRef = useRef(null);
+  const enableMouseRef = useRef(mouseInteraction);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    // Create OGL Renderer
     const renderer = new Renderer({
+      webgl: 2,
       alpha: true,
-      antialias: true
+      premultipliedAlpha: true,
+      antialias: false,
+      dpr: Math.min(window.devicePixelRatio || 1, 2)
     });
+
     const gl = renderer.gl;
-    containerRef.current.appendChild(gl.canvas);
+    gl.clearColor(0, 0, 0, 0);
+    const canvas = gl.canvas;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
+    container.appendChild(canvas);
 
-    // Setup Camera
-    const camera = new Camera(gl, { fov: 45 });
-    camera.position.set(0, height, 15);
-    camera.lookAt([0, 0, 0]);
-
-    const scene = new Transform();
-
-    // Set grid resolution based on detail prop
-    let gridResolution = 100;
-    if (detail === 'low') gridResolution = 50;
-    if (detail === 'high') gridResolution = 200;
-
-    // Create Plane geometry representing wave field
-    const position = [];
-    const uv = [];
-    const index = [];
-
-    const size = 40;
-    const segments = gridResolution;
-
-    for (let i = 0; i <= segments; i++) {
-      const z = (i / segments) * size - size / 2;
-      for (let j = 0; j <= segments; j++) {
-        const x = (j / segments) * size - size / 2;
-        position.push(x, 0, z);
-        uv.push(j / segments, i / segments);
-      }
-    }
-
-    for (let i = 0; i < segments; i++) {
-      for (let j = 0; j < segments; j++) {
-        const a = i * (segments + 1) + j;
-        const b = i * (segments + 1) + j + 1;
-        const c = (i + 1) * (segments + 1) + j;
-        const d = (i + 1) * (segments + 1) + j + 1;
-        index.push(a, c, b);
-        index.push(b, c, d);
-      }
-    }
-
-    const geometry = new Geometry(gl, {
-      position: { size: 3, data: new Float32Array(position) },
-      uv: { size: 2, data: new Float32Array(uv) },
-      index: { data: new Uint16Array(index) }
-    });
-
-    // Uniform values
-    const uniforms = {
-      uTime: { value: 0 },
-      uSpeed: { value: speed },
-      uAmplitude: { value: amplitude },
-      uWaveScale: { value: waveScale },
-      uWaveRatio: { value: waveRatio },
-      uSwell: { value: swell },
-      uTurbulence: { value: turbulence },
-      uTilt: { value: tilt * parallaxStrength },
-      uZoom: { value: zoom },
-      uHeight: { value: height },
-      uMouse: { value: [0, 0] },
-      uHorizonColor: { value: hexToRgb(horizonColor) },
-      uWaveColor: { value: hexToRgb(waveColor) },
-      uCrestColor: { value: hexToRgb(crestColor) },
-      uFogDepth: { value: fogDepth },
-      uBrightness: { value: brightness },
-      uOpacity: { value: opacity },
-      uGrainIntensity: { value: grainIntensity },
-      uGrain: { value: grain ? 1.0 : 0.0 }
-    };
-
-    const vertexShader = `
-      attribute vec3 position;
-      attribute vec2 uv;
-
-      uniform mat4 modelViewMatrix;
-      uniform mat4 projectionMatrix;
-      uniform float uTime;
-      uniform float uSpeed;
-      uniform float uAmplitude;
-      uniform float uWaveScale;
-      uniform float uWaveRatio;
-      uniform float uSwell;
-      uniform float uTurbulence;
-      uniform float uTilt;
-      uniform float uZoom;
-      uniform vec2 uMouse;
-
-      varying vec2 vUv;
-      varying float vHeight;
-      varying vec3 vPosition;
-
-      float hash(vec2 p) {
-        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-      }
-
-      float noise(vec2 p) {
-        vec2 i = floor(p);
-        vec2 f = fract(p);
-        vec2 u = f * f * (3.0 - 2.0 * f);
-        return mix(mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), u.x),
-                   mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
-      }
-
-      void main() {
-        vUv = uv;
-        vec3 pos = position;
-        
-        vec2 wavePos = pos.xz * uWaveScale;
-        float swellEffect = sin(wavePos.x * 0.1 + uTime * uSpeed) * uSwell * 0.05;
-        float turb = noise(wavePos * uTurbulence * 0.05 + uTime * uSpeed) * uAmplitude;
-        
-        float waveHeight = (swellEffect + turb) * uWaveRatio;
-        pos.y += waveHeight;
-        
-        vHeight = pos.y;
-        vPosition = pos;
-        
-        vec3 finalPos = pos;
-        finalPos.x += uMouse.x * uTilt;
-        finalPos.y += uMouse.y * uTilt;
-        finalPos.z *= uZoom;
-        
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(finalPos, 1.0);
-      }
-    `;
-
-    const fragmentShader = `
-      precision highp float;
-
-      uniform vec3 uHorizonColor;
-      uniform vec3 uWaveColor;
-      uniform vec3 uCrestColor;
-      uniform float uFogDepth;
-      uniform float uBrightness;
-      uniform float uOpacity;
-      uniform float uGrainIntensity;
-      uniform float uTime;
-      uniform float uGrain;
-
-      varying vec2 vUv;
-      varying float vHeight;
-      varying vec3 vPosition;
-
-      float random(vec2 co) {
-        return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
-      }
-
-      void main() {
-        float h = clamp((vHeight + 1.0) / 2.0, 0.0, 1.0);
-        vec3 color = mix(uWaveColor, uCrestColor, h);
-        
-        float depth = vPosition.z;
-        float fog = clamp(depth / uFogDepth, 0.0, 1.0);
-        color = mix(color, uHorizonColor, fog);
-        
-        color *= uBrightness;
-        
-        if (uGrain > 0.5) {
-          float noiseVal = random(gl_FragCoord.xy + vec2(uTime)) * 2.0 - 1.0;
-          color += noiseVal * uGrainIntensity;
-        }
-        
-        gl_FragColor = vec4(color, uOpacity);
-      }
-    `;
-
+    const geometry = new Triangle(gl);
     const program = new Program(gl, {
-      vertex: vertexShader,
-      fragment: fragmentShader,
-      uniforms,
-      transparent: true,
-      depthTest: true
+      vertex,
+      fragment,
+      uniforms: {
+        iTime: { value: 0 },
+        iResolution: { value: new Float32Array([1, 1]) },
+        uSpeed: { value: 0.4 },
+        uAmplitude: { value: 2.5 },
+        uWaveScale: { value: 0.6 },
+        uWaveRatio: { value: 0.9 },
+        uSwell: { value: 35 },
+        uTurbulence: { value: 20 },
+        uTilt: { value: 1.11 },
+        uZoom: { value: 1.0 },
+        uHeight: { value: 5.5 },
+        uFogDepth: { value: 15 },
+        uSteps: { value: 70.0 },
+        uBrightness: { value: 1.0 },
+        uOpacity: { value: 1.0 },
+        uGrain: { value: 1.0 },
+        uGrainIntensity: { value: 0.05 },
+        uMouse: { value: new Float32Array([0.5, 0.5]) },
+        uParallax: { value: 0.5 },
+        uEnableMouse: { value: true },
+        uHorizonColor: { value: new Float32Array([1, 1, 1]) },
+        uWaveColor: { value: new Float32Array([1, 1, 1]) },
+        uCrestColor: { value: new Float32Array([1, 1, 1]) }
+      }
     });
 
     const mesh = new Mesh(gl, { geometry, program });
-    mesh.setParent(scene);
+    ctxMap.set(container, { renderer, program, mesh });
 
-    function resize() {
-      if (!containerRef.current) return;
-      const width = containerRef.current.clientWidth;
-      const height = containerRef.current.clientHeight;
-      renderer.setSize(width, height);
-      camera.perspective({ aspect: gl.canvas.width / gl.canvas.height });
-    }
-    window.addEventListener('resize', resize, false);
-    resize();
+    const setSize = () => {
+      const rect = container.getBoundingClientRect();
+      const w = Math.max(1, Math.floor(rect.width));
+      const h = Math.max(1, Math.floor(rect.height));
+      renderer.setSize(w, h);
+      const res = program.uniforms.iResolution.value;
+      res[0] = gl.drawingBufferWidth;
+      res[1] = gl.drawingBufferHeight;
+      renderer.render({ scene: mesh });
+    };
 
-    const targetMouse = [0, 0];
-    const currentMouse = [0, 0];
-    function onMouseMove(event) {
-      if (!mouseInteraction) return;
-      const rect = gl.canvas.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      targetMouse[0] = x;
-      targetMouse[1] = y;
-    }
-    window.addEventListener('mousemove', onMouseMove, false);
+    const ro = new ResizeObserver(setSize);
+    ro.observe(container);
+    setSize();
 
-    let animationId;
-    function update(t) {
-      animationId = requestAnimationFrame(update);
-      const time = t * 0.001;
-      uniforms.uTime.value = time;
+    const currentMouse = [0.5, 0.5];
+    const targetMouse = [0.5, 0.5];
 
-      currentMouse[0] += (targetMouse[0] - currentMouse[0]) * 0.05;
-      currentMouse[1] += (targetMouse[1] - currentMouse[1]) * 0.05;
-      uniforms.uMouse.value = currentMouse;
+    const onPointerMove = e => {
+      const rect = canvas.getBoundingClientRect();
+      targetMouse[0] = (e.clientX - rect.left) / rect.width;
+      targetMouse[1] = 1.0 - (e.clientY - rect.top) / rect.height;
+    };
+    const onPointerLeave = () => {
+      targetMouse[0] = 0.5;
+      targetMouse[1] = 0.5;
+    };
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerleave', onPointerLeave);
 
-      renderer.render({ scene, camera });
-    }
-    animationId = requestAnimationFrame(update);
+    let raf = 0;
+    let isVisible = true;
+    let isPageVisible = !document.hidden;
+    const t0 = performance.now();
 
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', onMouseMove);
-      if (gl.canvas.parentNode) {
-        gl.canvas.parentNode.removeChild(gl.canvas);
+    const loop = t => {
+      program.uniforms.iTime.value = (t - t0) * 0.001;
+      const tx = enableMouseRef.current ? targetMouse[0] : 0.5;
+      const ty = enableMouseRef.current ? targetMouse[1] : 0.5;
+      currentMouse[0] += 0.05 * (tx - currentMouse[0]);
+      currentMouse[1] += 0.05 * (ty - currentMouse[1]);
+      program.uniforms.uMouse.value[0] = currentMouse[0];
+      program.uniforms.uMouse.value[1] = currentMouse[1];
+      renderer.render({ scene: mesh });
+      raf = requestAnimationFrame(loop);
+    };
+
+    const tryStart = () => {
+      if (isVisible && isPageVisible && raf === 0) raf = requestAnimationFrame(loop);
+    };
+    const tryStop = () => {
+      if (raf !== 0) {
+        cancelAnimationFrame(raf);
+        raf = 0;
       }
     };
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        isVisible ? tryStart() : tryStop();
+      },
+      { threshold: 0 }
+    );
+    io.observe(container);
+
+    const onVisibility = () => {
+      isPageVisible = !document.hidden;
+      isPageVisible ? tryStart() : tryStop();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    tryStart();
+
+    return () => {
+      tryStop();
+      ro.disconnect();
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerleave', onPointerLeave);
+      ctxMap.delete(container);
+      try {
+        container.removeChild(canvas);
+      } catch {}
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+    };
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const ctx = ctxMap.get(container);
+    if (!ctx) return;
+    const { program } = ctx;
+    const u = program.uniforms;
+
+    enableMouseRef.current = mouseInteraction;
+
+    u.uSpeed.value = speed;
+    u.uAmplitude.value = amplitude;
+    u.uWaveScale.value = waveScale;
+    u.uWaveRatio.value = waveRatio;
+    u.uSwell.value = swell;
+    u.uTurbulence.value = turbulence;
+    u.uTilt.value = tilt;
+    u.uZoom.value = zoom;
+    u.uHeight.value = height;
+    u.uFogDepth.value = fogDepth;
+    u.uSteps.value = detailToSteps(detail);
+    u.uBrightness.value = brightness;
+    u.uOpacity.value = opacity;
+    u.uGrain.value = grain ? 1.0 : 0.0;
+    u.uGrainIntensity.value = grainIntensity;
+    u.uParallax.value = parallaxStrength;
+    u.uEnableMouse.value = mouseInteraction;
+    const hc = u.uHorizonColor.value;
+    const wc = u.uWaveColor.value;
+    const cc = u.uCrestColor.value;
+    const h = hexToRgb(horizonColor);
+    const w = hexToRgb(waveColor);
+    const cr = hexToRgb(crestColor);
+    hc[0] = h[0];
+    hc[1] = h[1];
+    hc[2] = h[2];
+    wc[0] = w[0];
+    wc[1] = w[1];
+    wc[2] = w[2];
+    cc[0] = cr[0];
+    cc[1] = cr[1];
+    cc[2] = cr[2];
   }, [
     horizonColor,
     waveColor,
@@ -288,17 +361,7 @@ export default function GradientWaves({
     parallaxStrength
   ]);
 
-  return (
-    <div 
-      ref={containerRef} 
-      style={{ 
-        width: '100%', 
-        height: '100%', 
-        position: 'absolute', 
-        top: 0, 
-        left: 0,
-        overflow: 'hidden'
-      }} 
-    />
-  );
-}
+  return <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${className}`.trim()} />;
+};
+
+export default GradientWaves;
