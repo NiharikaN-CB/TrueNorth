@@ -1,20 +1,34 @@
 import React, { useState } from 'react'
 import { useJournalStore, WASHI_TAPES } from '../../store/useJournalStore'
 import StickerPicker from './StickerPicker'
-import { Edit3, Type, Eraser, Smile, Trash2, Tag, Download } from 'lucide-react'
+import ChecklistPanel from './ChecklistPanel'
+import { Edit3, Type, Eraser, Smile, Trash2, Tag, Download, CheckSquare, Undo2, Redo2 } from 'lucide-react'
 
-const COLORS = ['#4A5568', '#C4715A', '#2C3E35', '#7B5E7B', '#8C6D46']
+const COLORS = ['#4A5568', '#984343', '#5f8b90', '#7B5E7B', '#8C6D46']
 
-export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCanvas, onExportPdf }) {
+export default function JournalToolbar({
+  onAddSticker,
+  onAddWashiTape,
+  onClearCanvas,
+  onExportPdf,
+  onUndo,
+  onRedo,
+  canUndo,
+  canRedo,
+}) {
   const activeTool = useJournalStore((state) => state.activeTool)
   const setActiveTool = useJournalStore((state) => state.setActiveTool)
   const brushColor = useJournalStore((state) => state.brushColor)
   const setBrushColor = useJournalStore((state) => state.setBrushColor)
   const selectedWashi = useJournalStore((state) => state.selectedWashi)
   const setSelectedWashi = useJournalStore((state) => state.setSelectedWashi)
+  const checkedCount = useJournalStore(
+    (state) => state.pages.find((p) => p.id === state.currentPageId)?.checklist?.length || 0
+  )
 
   const [showStickers, setShowStickers] = useState(false)
   const [showWashi, setShowWashi] = useState(false)
+  const [showChecklist, setShowChecklist] = useState(false)
 
   return (
     <div style={{ position: 'relative' }}>
@@ -37,8 +51,8 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
             bottom: '60px',
             left: '120px',
             zIndex: 50,
-            background: '#FFFDF9',
-            border: '1px solid #E2D9CF',
+            background: '#FBF5EC',
+            border: '1px solid rgba(215, 155, 149, 0.3)',
             borderRadius: '16px',
             padding: '12px',
             boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
@@ -47,7 +61,7 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
             gap: '8px',
           }}
         >
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#2C3E35' }}>Choose Washi Tape 🩹</span>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#984343' }}>Choose Washi Tape 🩹</span>
           <div style={{ display: 'flex', gap: '8px' }}>
             {WASHI_TAPES.map((tape) => (
               <button
@@ -61,7 +75,7 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
                   height: '24px',
                   width: '60px',
                   backgroundColor: tape.color,
-                  border: selectedWashi.id === tape.id ? '2px solid #2C3E35' : '1px solid #CCC',
+                  border: selectedWashi.id === tape.id ? '2px solid #984343' : '1px solid #CCC',
                   borderRadius: '4px',
                   cursor: 'pointer',
                 }}
@@ -72,13 +86,19 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
         </div>
       )}
 
+      {showChecklist && (
+        <div style={{ position: 'absolute', bottom: '60px', left: '0', zIndex: 50 }}>
+          <ChecklistPanel onClose={() => setShowChecklist(false)} />
+        </div>
+      )}
+
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
           background: '#FAF7F2',
-          border: '1px solid #EBE3D7',
+          border: '1px solid rgba(215, 155, 149, 0.3)',
           padding: '8px 16px',
           borderRadius: '30px',
           boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
@@ -86,9 +106,49 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
         }}
       >
         <button
+          onClick={onUndo}
+          disabled={!canUndo}
+          title="Undo"
+          aria-label="Undo last change"
+          style={{
+            background: 'transparent',
+            color: canUndo ? '#6B5E55' : '#D8CFC4',
+            border: 'none',
+            borderRadius: '20px',
+            padding: '8px',
+            cursor: canUndo ? 'pointer' : 'not-allowed',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Undo2 size={16} />
+        </button>
+
+        <button
+          onClick={onRedo}
+          disabled={!canRedo}
+          title="Redo"
+          aria-label="Redo last undone change"
+          style={{
+            background: 'transparent',
+            color: canRedo ? '#6B5E55' : '#D8CFC4',
+            border: 'none',
+            borderRadius: '20px',
+            padding: '8px',
+            cursor: canRedo ? 'pointer' : 'not-allowed',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Redo2 size={16} />
+        </button>
+
+        <div style={{ width: '1px', height: '20px', background: 'rgba(215, 155, 149, 0.3)', margin: '0 4px' }} />
+
+        <button
           onClick={() => setActiveTool('pen')}
           style={{
-            background: activeTool === 'pen' ? '#C4715A' : 'transparent',
+            background: activeTool === 'pen' ? '#984343' : 'transparent',
             color: activeTool === 'pen' ? '#FFFFFF' : '#6B5E55',
             border: 'none',
             borderRadius: '20px',
@@ -107,7 +167,7 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
         <button
           onClick={() => setActiveTool('text')}
           style={{
-            background: activeTool === 'text' ? '#C4715A' : 'transparent',
+            background: activeTool === 'text' ? '#984343' : 'transparent',
             color: activeTool === 'text' ? '#FFFFFF' : '#6B5E55',
             border: 'none',
             borderRadius: '20px',
@@ -126,7 +186,7 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
         <button
           onClick={() => setActiveTool('eraser')}
           style={{
-            background: activeTool === 'eraser' ? '#C4715A' : 'transparent',
+            background: activeTool === 'eraser' ? '#984343' : 'transparent',
             color: activeTool === 'eraser' ? '#FFFFFF' : '#6B5E55',
             border: 'none',
             borderRadius: '20px',
@@ -142,13 +202,17 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
           <Eraser size={15} /> Eraser
         </button>
 
-        <div style={{ width: '1px', height: '20px', background: '#E2D9CF', margin: '0 4px' }} />
+        <div style={{ width: '1px', height: '20px', background: 'rgba(215, 155, 149, 0.3)', margin: '0 4px' }} />
 
         <button
-          onClick={() => setShowWashi(!showWashi)}
+          onClick={() => {
+            setShowWashi(!showWashi)
+            setShowStickers(false)
+            setShowChecklist(false)
+          }}
           style={{
             background: showWashi ? '#F3E8E3' : 'transparent',
-            color: '#8A5844',
+            color: '#8a6a5f',
             border: 'none',
             borderRadius: '20px',
             padding: '8px 12px',
@@ -164,10 +228,14 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
         </button>
 
         <button
-          onClick={() => setShowStickers(!showStickers)}
+          onClick={() => {
+            setShowStickers(!showStickers)
+            setShowWashi(false)
+            setShowChecklist(false)
+          }}
           style={{
             background: showStickers ? '#F3E8E3' : 'transparent',
-            color: '#A85843',
+            color: '#984343',
             border: 'none',
             borderRadius: '20px',
             padding: '8px 14px',
@@ -182,7 +250,30 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
           <Smile size={16} /> Stickers 🎀
         </button>
 
-        <div style={{ width: '1px', height: '20px', background: '#E2D9CF', margin: '0 4px' }} />
+        <button
+          onClick={() => {
+            setShowChecklist(!showChecklist)
+            setShowWashi(false)
+            setShowStickers(false)
+          }}
+          style={{
+            background: showChecklist ? '#F3E8E3' : 'transparent',
+            color: '#527D5E',
+            border: 'none',
+            borderRadius: '20px',
+            padding: '8px 14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '13px',
+            fontWeight: 500,
+          }}
+        >
+          <CheckSquare size={15} /> Checklist{checkedCount > 0 ? ` (${checkedCount})` : ''}
+        </button>
+
+        <div style={{ width: '1px', height: '20px', background: 'rgba(215, 155, 149, 0.3)', margin: '0 4px' }} />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {COLORS.map((c) => (
@@ -194,7 +285,7 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
                 height: '20px',
                 borderRadius: '50%',
                 backgroundColor: c,
-                border: brushColor === c ? '2px solid #2C3E35' : '1px solid transparent',
+                border: brushColor === c ? '2px solid #984343' : '1px solid transparent',
                 cursor: 'pointer',
                 padding: 0,
               }}
@@ -202,13 +293,13 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
           ))}
         </div>
 
-        <div style={{ width: '1px', height: '20px', background: '#E2D9CF', margin: '0 4px' }} />
+        <div style={{ width: '1px', height: '20px', background: 'rgba(215, 155, 149, 0.3)', margin: '0 4px' }} />
 
         {onExportPdf && (
           <button
             onClick={onExportPdf}
             style={{
-              background: '#2C3E35',
+              background: '#984343',
               color: '#FFFFFF',
               border: 'none',
               borderRadius: '20px',

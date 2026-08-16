@@ -147,6 +147,19 @@ section {
   outline-offset: 3px;
 }
 
+/* Journal workspace: the two-column grid (canvas + reflection panel) is set
+   via inline styles in JournalWorkspace.jsx (gridTemplateColumns: '1fr
+   380px'), which has no responsive behavior of its own — inline styles
+   can't express media queries. This is the one CSS-file override needed to
+   stack it into a single column on narrow/mobile viewports; everything
+   else in the journal workspace stays as inline styles. !important is
+   required to win over the inline style's higher specificity. */
+@media (max-width: 860px) {
+  .tn-journal-main {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;
