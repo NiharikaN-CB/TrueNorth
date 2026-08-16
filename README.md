@@ -516,6 +516,13 @@ Computer Science · AI-Assisted Builder · Product & UI/UX
 * GitHub: [@komalharshita](https://github.com/komalharshita)
 * LinkedIn: [komalharshita](https://www.linkedin.com/in/komalharshita/)
 
+
+**Niharika Niranjan**  
+Cyber Security · AI/ML · Full-Stack Developer
+
+* GitHub: [@NiharikaN-CB](https://github.com/NiharikaN-CB)
+* LinkedIn: [Niharika Niranjan](https://www.linkedin.com/in/niharika-niranjan-19778a290/)
+
 ---
 
 # Project Documentation
