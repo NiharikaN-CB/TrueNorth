@@ -1,0 +1,42 @@
+<svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Compass rose background -->
+  <defs>
+    <linearGradient id="roseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4A5D4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#E8B4D4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C9A5D4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer circle ring -->
+  <circle cx="50" cy="50" r="48" fill="none" stroke="#D4A5D4" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Inner decorative circle -->
+  <circle cx="50" cy="50" r="38" fill="none" stroke="#E8B4D4" stroke-width="1.5" opacity="0.4"/>
+  
+  <!-- Main compass star shape -->
+  <g fill="url(#roseGradient)" opacity="0.85">
+    <!-- North point (top) -->
+    <polygon points="50,15 58,35 50,32 42,35"/>
+    <!-- Northeast -->
+    <polygon points="70,25 60,42 65,38 72,35"/>
+    <!-- East (right) -->
+    <polygon points="85,50 65,50 68,50 72,50"/>
+    <!-- Southeast -->
+    <polygon points="70,75 60,58 65,62 72,65"/>
+    <!-- South (bottom) -->
+    <polygon points="50,85 42,65 50,68 58,65"/>
+    <!-- Southwest -->
+    <polygon points="30,75 40,58 35,62 28,65"/>
+    <!-- West (left) -->
+    <polygon points="15,50 35,50 32,50 28,50"/>
+    <!-- Northwest -->
+    <polygon points="30,25 40,42 35,38 28,35"/>
+  </g>
+  
+  <!-- Center circle -->
+  <circle cx="50" cy="50" r="8" fill="#984343" opacity="0.8"/>
+  
+  <!-- Subtle inner detail -->
+  <circle cx="50" cy="50" r="5" fill="none" stroke="#F1E4D9" stroke-width="1" opacity="0.6"/>
+</svg>
