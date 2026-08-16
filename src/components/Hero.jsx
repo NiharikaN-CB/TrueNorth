@@ -5,8 +5,30 @@ export default function Hero() {
   const openJournal = useJournalStore((state) => state.openJournal)
 
   return (
-    <section className="hero">
-      <div className="wrap hero-grid">
+    <section className="hero" style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* Subtle beach video background loop placeholder */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 0,
+          opacity: 0.15,
+          pointerEvents: 'none',
+        }}
+      >
+        <source src="/hero-video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <div className="wrap hero-grid" style={{ position: 'relative', zIndex: 1 }}>
         <div>
           <div className="eyebrow">Private &amp; local, always</div>
           <h1>
