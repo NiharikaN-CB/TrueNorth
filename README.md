@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TrueNorth — Landing Page (React)
 
-## Getting Started
+A React + Vite conversion of the TrueNorth marketing landing page: "A calmer way to date."
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open the local URL Vite prints (usually `http://localhost:5173`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build for production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run preview   # serve the production build locally
+```
 
-## Learn More
+The production build is output to `dist/`, ready to deploy to Vercel, Netlify, or any static host.
 
-To learn more about Next.js, take a look at the following resources:
+## Project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+truenorth-react/
+├── index.html                 Vite entry HTML (fonts + root div)
+├── src/
+│   ├── main.jsx                React root/render
+│   ├── App.jsx                 Composes all page sections
+│   ├── App.css                 Section-level styles
+│   ├── index.css               Design tokens, reset, base styles
+│   ├── hooks/
+│   │   └── useReveal.js        IntersectionObserver hook for scroll-reveal
+│   └── components/
+│       ├── Reveal.jsx          Reusable scroll-reveal wrapper
+│       ├── Nav.jsx
+│       ├── Hero.jsx            Signature "desk scene" illustration
+│       ├── CycleStrip.jsx      Scrolling marquee of the overthinking cycle
+│       ├── Reframe.jsx         "Old spiral vs. new question" cards
+│       ├── Features.jsx        P0 feature grid (data-driven)
+│       ├── Flow.jsx            4-step journey (write → reflect → understand → recover)
+│       ├── Privacy.jsx         Local-first privacy reassurance block
+│       ├── Closing.jsx         Final CTA
+│       └── Footer.jsx
+└── package.json
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- No backend or routing — this is the marketing shell only. The `Start journaling` CTAs
+  scroll to the hero; they aren't wired to the actual journal app yet.
+- Design tokens (colors, fonts) live in `src/index.css` under `:root` — update them there
+  to restyle the whole app consistently.
+- Fonts (Fraunces, Caveat, Inter) load from Google Fonts via `<link>` tags in `index.html`.
