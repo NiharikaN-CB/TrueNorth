@@ -7,6 +7,7 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="brand" onClick={openJournal} style={{ cursor: 'pointer' }}>
+        <img className="brand-logo" src="/tn logo.jpeg" alt="TrueNorth logo" />
         <span className="brand-mark">TrueNorth</span>
         <span className="brand-tag">— a calmer way to date</span>
       </div>
