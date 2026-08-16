@@ -3,31 +3,28 @@ import { Lock, Heart, ShieldCheck, Sparkles, Key, CheckCircle2, Trash2, Eye } fr
 
 export default function UnsentVentBox() {
   const [ventText, setVentText] = useState('')
-  const [isSealed, setIsSealed] = useState(false)
+  const [eatingState, setEatingState] = useState('idle') // 'idle' | 'eating' | 'eaten'
   const [showPeek, setShowPeek] = useState(false)
   const [reflection, setReflection] = useState(null)
-  const [isProcessing, setIsProcessing] = useState(false)
 
-  const handleSealAndReflect = () => {
+  const handleFeedChest = () => {
     if (!ventText.trim()) return
-    setIsProcessing(true)
-    setIsSealed(true)
-    setShowPeek(false)
+    setEatingState('eating')
 
-    // Simulate gentle wellness reflection with safety guardrails
+    // Munching / Gulp animation sequence
     setTimeout(() => {
+      setEatingState('eaten')
       setReflection({
         summary:
-          "Expressing these raw thoughts here keeps your peace intact. You are holding your boundaries with dignity instead of acting out of immediate anxious urgency.",
+          "Your message has been eaten and stored safely inside the vault. Expressing it here protects your emotional peace without making an impulsive decision.",
         gentleAffirmation: "Your worth isn't determined by a fast reply. You are in control.",
       })
-      setIsProcessing(false)
-    }, 1000)
+    }, 1400)
   }
 
   const handleReset = () => {
     setVentText('')
-    setIsSealed(false)
+    setEatingState('idle')
     setShowPeek(false)
     setReflection(null)
   }
@@ -72,10 +69,10 @@ export default function UnsentVentBox() {
           </div>
           <div>
             <h3 style={{ fontFamily: "'Playfair Display', serif", margin: 0, fontSize: '18px', color: '#2C3E35' }}>
-              The Unsent Text Vent Vault 🔒
+              The Message-Eating Treasure Vault 🧰
             </h3>
             <span style={{ fontSize: '12px', color: '#8A7B70' }}>
-              Store the text you shouldn't send in your private treasure chest.
+              Feed your unsent message to the treasure box to lock it away safely.
             </span>
           </div>
         </div>
@@ -96,21 +93,31 @@ export default function UnsentVentBox() {
         </div>
       </div>
 
-      {/* Interactive Treasure Chest Showcase */}
+      {/* Animated Munching Treasure Chest Stage */}
       <div
         style={{
           background: 'linear-gradient(180deg, #FAF4ED 0%, #FFFDF9 100%)',
           border: '1px solid #EDE3D7',
           borderRadius: '20px',
-          padding: '20px',
+          padding: '24px',
           textAlign: 'center',
           marginBottom: '20px',
           position: 'relative',
           overflow: 'hidden',
+          transition: 'all 0.3s ease',
         }}
       >
-        <div style={{ fontSize: '64px', lineHeight: 1, filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.1))' }}>
-          {!isSealed ? '🧰' : '🔐'}
+        <div
+          style={{
+            fontSize: '72px',
+            lineHeight: 1,
+            transition: 'transform 0.2s ease',
+            transform: eatingState === 'eating' ? 'scale(1.2) rotate(-5deg)' : 'scale(1)',
+          }}
+        >
+          {eatingState === 'idle' && '🧰'}
+          {eatingState === 'eating' && '😮‍💨📦'}
+          {eatingState === 'eaten' && '🔐'}
         </div>
 
         <div
@@ -118,26 +125,28 @@ export default function UnsentVentBox() {
             fontFamily: "'Playfair Display', serif",
             fontWeight: 700,
             color: '#2C3E35',
-            fontSize: '16px',
-            marginTop: '8px',
+            fontSize: '17px',
+            marginTop: '10px',
           }}
         >
-          {!isSealed ? 'Your Treasure Vault is Open ✨' : 'Treasure Chest Locked & Sealed 🔒'}
+          {eatingState === 'idle' && 'The Treasure Box is Hungry for Unsent Texts 😋'}
+          {eatingState === 'eating' && 'Nom Nom Nom... Gulping Your Message! ✨'}
+          {eatingState === 'eaten' && 'Gulp! Message Safely Locked Inside Belly 🔒'}
         </div>
 
         <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#8A7B70' }}>
-          {!isSealed
-            ? 'Write down your unsent thoughts below and lock them away safely.'
-            : 'Your message is safely stored inside the chest. You avoided sending an impulsive text!'}
+          {eatingState === 'idle' && 'Write down the message you shouldn’t send and feed it to the chest.'}
+          {eatingState === 'eating' && 'Swallowing your text scroll and locking the padlock...'}
+          {eatingState === 'eaten' && 'Your text is safely digested into local memory. You held your peace!'}
         </p>
       </div>
 
-      {!isSealed ? (
+      {eatingState === 'idle' && (
         <div>
           <textarea
             value={ventText}
             onChange={(e) => setVentText(e.target.value)}
-            placeholder="Type your unsent message freely... Say everything on your mind without worrying about how it sounds."
+            placeholder="Type your unsent message freely... Say everything on your mind before feeding it to the chest."
             rows={4}
             style={{
               width: '100%',
@@ -164,11 +173,11 @@ export default function UnsentVentBox() {
             }}
           >
             <span style={{ fontSize: '12px', color: '#8A7B70', fontStyle: 'italic' }}>
-              ✨ Sealing this text holds your boundaries &amp; protects your peace.
+              ✨ Feeding this to the box holds your boundaries &amp; protects your peace.
             </span>
 
             <button
-              onClick={handleSealAndReflect}
+              onClick={handleFeedChest}
               disabled={!ventText.trim()}
               style={{
                 background: ventText.trim()
@@ -187,11 +196,19 @@ export default function UnsentVentBox() {
                 boxShadow: ventText.trim() ? '0 4px 14px rgba(217, 72, 107, 0.3)' : 'none',
               }}
             >
-              <Key size={15} /> Lock in Treasure Chest 🔒
+              <Key size={15} /> Feed to Treasure Chest 😋🔒
             </button>
           </div>
         </div>
-      ) : (
+      )}
+
+      {eatingState === 'eating' && (
+        <div style={{ textAlign: 'center', padding: '24px 0', color: '#D9486B', fontSize: '15px', fontWeight: 600 }}>
+          <span>*Nom nom nom* 📜 ➔ 🧰 Gulping your text scroll...</span>
+        </div>
+      )}
+
+      {eatingState === 'eaten' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div
             style={{
@@ -208,10 +225,10 @@ export default function UnsentVentBox() {
               <CheckCircle2 size={20} color="#D9486B" />
               <div>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#D9486B' }}>
-                  Unsent Text Sealed in Treasure Chest 🧰✨
+                  Unsent Text Eaten &amp; Locked in Local Vault 🧰😋
                 </div>
                 <div style={{ fontSize: '12px', color: '#8A5844', marginTop: '2px' }}>
-                  Safely locked in local memory. You held your peace!
+                  Safely swallowed into local memory. You held your peace!
                 </div>
               </div>
             </div>
@@ -233,7 +250,7 @@ export default function UnsentVentBox() {
                   fontWeight: 500,
                 }}
               >
-                <Eye size={14} /> {showPeek ? 'Hide Text' : 'Peek Inside 🗝️'}
+                <Eye size={14} /> {showPeek ? 'Close Belly' : 'Peek Inside Belly 🗝️'}
               </button>
 
               <button
@@ -249,7 +266,7 @@ export default function UnsentVentBox() {
                   gap: '4px',
                 }}
               >
-                <Trash2 size={14} /> Clear
+                <Trash2 size={14} /> Clear Vault
               </button>
             </div>
           </div>
@@ -272,49 +289,43 @@ export default function UnsentVentBox() {
             </div>
           )}
 
-          {isProcessing ? (
-            <div style={{ textAlign: 'center', padding: '16px', color: '#D9486B', fontSize: '13px' }}>
-              <span>Locking chest &amp; generating gentle validation... ✨</span>
-            </div>
-          ) : (
-            reflection && (
+          {reflection && (
+            <div
+              style={{
+                background: '#FAF6F0',
+                border: '1px solid #EBE3D7',
+                borderRadius: '16px',
+                padding: '18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#2C3E35', fontWeight: 600, fontSize: '14px' }}>
+                <Sparkles size={16} color="#C4715A" /> Gentle Boundary Validation
+              </div>
+
+              <p style={{ margin: 0, fontSize: '14px', color: '#3A423D', lineHeight: '1.6' }}>
+                {reflection.summary}
+              </p>
+
               <div
                 style={{
-                  background: '#FAF6F0',
-                  border: '1px solid #EBE3D7',
-                  borderRadius: '16px',
-                  padding: '18px',
+                  background: '#EAF4EE',
+                  border: '1px solid #B7E4C7',
+                  borderRadius: '12px',
+                  padding: '10px 14px',
+                  fontSize: '13px',
+                  color: '#2C5741',
                   display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#2C3E35', fontWeight: 600, fontSize: '14px' }}>
-                  <Sparkles size={16} color="#C4715A" /> Gentle Boundary Validation
-                </div>
-
-                <p style={{ margin: 0, fontSize: '14px', color: '#3A423D', lineHeight: '1.6' }}>
-                  {reflection.summary}
-                </p>
-
-                <div
-                  style={{
-                    background: '#EAF4EE',
-                    border: '1px solid #B7E4C7',
-                    borderRadius: '12px',
-                    padding: '10px 14px',
-                    fontSize: '13px',
-                    color: '#2C5741',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <Heart size={15} color="#2C5741" />
-                  <span>{reflection.gentleAffirmation}</span>
-                </div>
+                <Heart size={15} color="#2C5741" />
+                <span>{reflection.gentleAffirmation}</span>
               </div>
-            )
+            </div>
           )}
         </div>
       )}
