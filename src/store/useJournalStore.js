@@ -29,6 +29,7 @@ function createEmptyPage() {
     tags: [],
     mood: null,
     reflection: null,
+    checklist: [],
   }
 }
 
@@ -72,6 +73,7 @@ export const useJournalStore = create(
         tags: [],
         mood: null,
         reflection: null,
+        checklist: [],
       },
     ],
 
@@ -132,6 +134,20 @@ export const useJournalStore = create(
         pages: pages.map((p) =>
           p.id === currentPageId ? { ...p, canvasData: canvasJson, notesText: text } : p
         ),
+      })
+    },
+
+    toggleChecklistItem: (itemId) => {
+      const { currentPageId, pages } = get()
+      set({
+        pages: pages.map((p) => {
+          if (p.id !== currentPageId) return p
+          const current = Array.isArray(p.checklist) ? p.checklist : []
+          const next = current.includes(itemId)
+            ? current.filter((id) => id !== itemId)
+            : [...current, itemId]
+          return { ...p, checklist: next }
+        }),
       })
     },
 

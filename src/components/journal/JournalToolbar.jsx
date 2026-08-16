@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useJournalStore, WASHI_TAPES } from '../../store/useJournalStore'
 import StickerPicker from './StickerPicker'
-import { Edit3, Type, Eraser, Smile, Trash2, Tag, Download } from 'lucide-react'
+import ChecklistPanel from './ChecklistPanel'
+import { Edit3, Type, Eraser, Smile, Trash2, Tag, Download, CheckSquare } from 'lucide-react'
 
 const COLORS = ['#4A5568', '#C4715A', '#2C3E35', '#7B5E7B', '#8C6D46']
 
@@ -12,9 +13,13 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
   const setBrushColor = useJournalStore((state) => state.setBrushColor)
   const selectedWashi = useJournalStore((state) => state.selectedWashi)
   const setSelectedWashi = useJournalStore((state) => state.setSelectedWashi)
+  const checkedCount = useJournalStore(
+    (state) => state.pages.find((p) => p.id === state.currentPageId)?.checklist?.length || 0
+  )
 
   const [showStickers, setShowStickers] = useState(false)
   const [showWashi, setShowWashi] = useState(false)
+  const [showChecklist, setShowChecklist] = useState(false)
 
   return (
     <div style={{ position: 'relative' }}>
@@ -69,6 +74,12 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {showChecklist && (
+        <div style={{ position: 'absolute', bottom: '60px', left: '0', zIndex: 50 }}>
+          <ChecklistPanel onClose={() => setShowChecklist(false)} />
         </div>
       )}
 
@@ -145,7 +156,11 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
         <div style={{ width: '1px', height: '20px', background: '#E2D9CF', margin: '0 4px' }} />
 
         <button
-          onClick={() => setShowWashi(!showWashi)}
+          onClick={() => {
+            setShowWashi(!showWashi)
+            setShowStickers(false)
+            setShowChecklist(false)
+          }}
           style={{
             background: showWashi ? '#F3E8E3' : 'transparent',
             color: '#8A5844',
@@ -164,7 +179,11 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
         </button>
 
         <button
-          onClick={() => setShowStickers(!showStickers)}
+          onClick={() => {
+            setShowStickers(!showStickers)
+            setShowWashi(false)
+            setShowChecklist(false)
+          }}
           style={{
             background: showStickers ? '#F3E8E3' : 'transparent',
             color: '#A85843',
@@ -180,6 +199,29 @@ export default function JournalToolbar({ onAddSticker, onAddWashiTape, onClearCa
           }}
         >
           <Smile size={16} /> Stickers 🎀
+        </button>
+
+        <button
+          onClick={() => {
+            setShowChecklist(!showChecklist)
+            setShowWashi(false)
+            setShowStickers(false)
+          }}
+          style={{
+            background: showChecklist ? '#F3E8E3' : 'transparent',
+            color: '#527D5E',
+            border: 'none',
+            borderRadius: '20px',
+            padding: '8px 14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '13px',
+            fontWeight: 500,
+          }}
+        >
+          <CheckSquare size={15} /> Checklist{checkedCount > 0 ? ` (${checkedCount})` : ''}
         </button>
 
         <div style={{ width: '1px', height: '20px', background: '#E2D9CF', margin: '0 4px' }} />

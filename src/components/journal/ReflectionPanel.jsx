@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useJournalStore } from '../../store/useJournalStore'
 import { extractTextFromCanvasData } from '../../utils/canvasText'
+import { formatChecklistForReflection } from '../../utils/checklist'
 import { Sparkles, Heart, Compass, AlertCircle, Bookmark } from 'lucide-react'
 
 const MAX_TEXT_LENGTH = 10000
@@ -17,7 +18,8 @@ export default function ReflectionPanel() {
   const handleReflect = async () => {
     const notesText = (currentPage?.notesText || '').trim()
     const canvasText = extractTextFromCanvasData(currentPage?.canvasData)
-    const combinedText = [notesText, canvasText].filter(Boolean).join('\n\n').trim()
+    const checklistText = formatChecklistForReflection(currentPage?.checklist)
+    const combinedText = [notesText, canvasText, checklistText].filter(Boolean).join('\n\n').trim()
 
     if (!combinedText) {
       setReflectionError("Write a little about how you're feeling before reflecting.")
