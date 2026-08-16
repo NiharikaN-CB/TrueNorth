@@ -177,7 +177,7 @@ export default function JournalWorkspace() {
               boxShadow: activeWorkspaceMode === 'antigravity' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
             }}
           >
-            <Sparkles size={15} color="#C4715A" /> Anti-Gravity Floating Stickers 🌌
+            <Sparkles size={15} color="#C4715A" /> Floating Sanctuary 🌌
           </button>
         </div>
       </div>
