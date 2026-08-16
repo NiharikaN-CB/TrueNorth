@@ -7,6 +7,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
   const fabricCanvasRef = useRef(null)
   const loadedPageIdRef = useRef(null)
   const notesTextRef = useRef('')
+  const activeToolRef = useRef('pen')
 
   const activeTool = useJournalStore((state) => state.activeTool)
   const brushColor = useJournalStore((state) => state.brushColor)
@@ -25,6 +26,10 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
   useEffect(() => {
     notesTextRef.current = notesText
   }, [notesText])
+
+  useEffect(() => {
+    activeToolRef.current = activeTool
+  }, [activeTool])
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -51,7 +56,47 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
       updateCurrentPageData(json, notesTextRef.current)
     })
 
+    // Eraser tool: clicking directly on an object removes it — drawings,
+    // text boxes, stickers, and washi tape are all real Fabric objects, so
+    // this works uniformly for all of them (unlike painting over in the
+    // background color, which only ever visually hid pen strokes and left
+    // everything else — and the strokes themselves — still there
+    // underneath).
+    const handleEraserClick = (opt) => {
+      if (activeToolRef.current !== 'eraser' || !opt.target) return
+      initCanvas.remove(opt.target)
+      initCanvas.discardActiveObject()
+      initCanvas.renderAll()
+      updateCurrentPageData(initCanvas.toJSON(), notesTextRef.current)
+    }
+    initCanvas.on('mouse:down', handleEraserClick)
+
+    // Delete/Backspace removes whatever's currently selected. Carefully
+    // guarded: never hijack these keys while the user is typing in the
+    // notes textarea or any other input, and never remove a text object
+    // that's mid-edit (its own editor should handle Backspace normally).
+    const handleKeyDown = (e) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return
+
+      const activeEl = document.activeElement
+      const isTypingElsewhere =
+        activeEl &&
+        (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT' || activeEl.isContentEditable)
+      if (isTypingElsewhere) return
+
+      const activeObject = initCanvas.getActiveObject()
+      if (!activeObject || activeObject.isEditing) return
+
+      e.preventDefault()
+      initCanvas.remove(...initCanvas.getActiveObjects())
+      initCanvas.discardActiveObject()
+      initCanvas.renderAll()
+      updateCurrentPageData(initCanvas.toJSON(), notesTextRef.current)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+
     return () => {
+      window.removeEventListener('keydown', handleKeyDown)
       initCanvas.dispose()
     }
   }, [])
@@ -115,18 +160,22 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
 
     if (activeTool === 'pen') {
       canvas.isDrawingMode = true
+      canvas.selection = true
       if (canvas.freeDrawingBrush) {
         canvas.freeDrawingBrush.color = brushColor
         canvas.freeDrawingBrush.width = brushSize
       }
     } else if (activeTool === 'eraser') {
-      canvas.isDrawingMode = true
-      if (canvas.freeDrawingBrush) {
-        canvas.freeDrawingBrush.color = paperTexture.bg
-        canvas.freeDrawingBrush.width = brushSize * 4
-      }
+      // Not a drawing mode — clicking an object removes it (see
+      // handleEraserClick in the mount effect). Disabling drag-selection
+      // keeps the cursor focused on "click a thing to delete it."
+      canvas.isDrawingMode = false
+      canvas.selection = false
+      canvas.discardActiveObject()
+      canvas.renderAll()
     } else {
       canvas.isDrawingMode = false
+      canvas.selection = true
     }
   }, [activeTool, brushColor, brushSize, paperTexture])
 
@@ -301,7 +350,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
       </div>
 
       <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${paperTexture.borderColor}` }}>
-        <canvas ref={canvasRef} style={{ width: '100%', height: '400px', display: 'block' }} />
+        <canvas ref={canvasRef} style={{ width: '100%', height: '400px', display: 'block', touchAction: 'none' }} />
       </div>
 
       <div
@@ -314,7 +363,7 @@ const JournalCanvas = forwardRef(function JournalCanvas({ onCanvasChange }, ref)
           opacity: 0.7,
         }}
       >
-        <span>Draw, stick washi tape 🩹, or place kawaii stickers 🎀</span>
+        <span>Draw, stick washi tape 🩹, or place kawaii stickers 🎀 — select anything and press Delete, or tap Eraser, to remove it</span>
         <span>Autosaves locally</span>
       </div>
     </div>
