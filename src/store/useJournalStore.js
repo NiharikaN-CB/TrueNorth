@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { get as idbGet, set as idbSet } from 'idb-keyval'
+import { idbGet, idbSet } from '../utils/idbStorage'
 
 export const PAPER_TEXTURES = {
   linen: { name: 'Soft Linen', bg: '#FFFDF9', borderColor: '#EBE3D7' },

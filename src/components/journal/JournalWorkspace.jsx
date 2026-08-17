@@ -9,7 +9,7 @@ import ReflectionPanel from './ReflectionPanel'
 import AmbientSoundPlayer from './AmbientSoundPlayer'
 import PaperTexturePicker from './PaperTexturePicker'
 import PatternTimeline from './PatternTimeline'
-import { ArrowLeft, ShieldCheck, Sparkles, BookOpen, Lock } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Sparkles, BookOpen, Lock, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
@@ -25,6 +25,8 @@ export default function JournalWorkspace() {
   const [canRedo, setCanRedo] = useState(false)
 
   const [activeWorkspaceMode, setActiveWorkspaceMode] = useState('canvas') // 'canvas' | 'antigravity' | 'vent'
+  const [isSanctuaryOpen, setIsSanctuaryOpen] = useState(false)
+  const [isVentOpen, setIsVentOpen] = useState(false)
 
   const handleAddSticker = (sticker) => {
     if (canvasComponentRef.current) {
@@ -312,9 +314,120 @@ export default function JournalWorkspace() {
                   onAddWashiTape={handleAddWashiTape}
                   onClearCanvas={handleClearCanvas}
                   onExportPdf={handleExportPdf}
+                  onUndo={handleUndo}
+                  onRedo={handleRedo}
+                  canUndo={canUndo}
+                  canRedo={canRedo}
                 />
               </div>
-              <JournalCanvas ref={canvasComponentRef} />
+              <JournalCanvas ref={canvasComponentRef} onHistoryChange={handleHistoryChange} />
+
+              {/* Collapsible Sanctuary Tools Section */}
+              <div style={{ marginTop: '28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ 
+                  borderBottom: '1px solid rgba(215, 155, 149, 0.3)', 
+                  paddingBottom: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Sparkles size={16} color="#C4715A" />
+                  <span style={{ 
+                    fontFamily: "'Playfair Display', serif", 
+                    fontWeight: 700, 
+                    fontSize: '16px', 
+                    color: '#984343' 
+                  }}>
+                    Workspace Companions &amp; Sanctuary
+                  </span>
+                </div>
+
+                {/* Collapsible Floating Sanctuary Card */}
+                <div style={{
+                  background: '#FFFDF9',
+                  border: '1px solid #EBE3D7',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <button
+                    onClick={() => setIsSanctuaryOpen(!isSanctuaryOpen)}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '16px 20px',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '18px' }}>🌌</span>
+                      <div>
+                        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '15px', color: '#2C3E35', display: 'block' }}>
+                          Floating Sanctuary Emotes
+                        </span>
+                        <span style={{ fontSize: '11px', color: '#8A7B70' }}>
+                          Drag, toss, and let peaceful emotes float under zero gravity
+                        </span>
+                      </div>
+                    </div>
+                    {isSanctuaryOpen ? <ChevronUp size={16} color="#8a6a5f" /> : <ChevronDown size={16} color="#8a6a5f" />}
+                  </button>
+                  {isSanctuaryOpen && (
+                    <div style={{ padding: '0 20px 20px 20px', borderTop: '1px dashed #E2D9CF', paddingTop: '16px' }}>
+                      <AntiGravityStickers />
+                    </div>
+                  )}
+                </div>
+
+                {/* Collapsible Unsent Vent Vault Card */}
+                <div style={{
+                  background: '#FFFDF9',
+                  border: '1px solid #EBE3D7',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <button
+                    onClick={() => setIsVentOpen(!isVentOpen)}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '16px 20px',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '18px' }}>🧰</span>
+                      <div>
+                        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '15px', color: '#2C3E35', display: 'block' }}>
+                          Message-Eating Vent Vault
+                        </span>
+                        <span style={{ fontSize: '11px', color: '#8A7B70' }}>
+                          Express unsent thoughts safely and let the chest digest them securely
+                        </span>
+                      </div>
+                    </div>
+                    {isVentOpen ? <ChevronUp size={16} color="#8a6a5f" /> : <ChevronDown size={16} color="#8a6a5f" />}
+                  </button>
+                  {isVentOpen && (
+                    <div style={{ padding: '0 20px 20px 20px', borderTop: '1px dashed #E2D9CF', paddingTop: '16px' }}>
+                      <UnsentVentBox />
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           )}
 
