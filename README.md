@@ -523,8 +523,14 @@ Cyber Security · AI/ML · Full-Stack Developer
 * GitHub: [@NiharikaN-CB](https://github.com/NiharikaN-CB)
 * LinkedIn: [Niharika Niranjan](https://www.linkedin.com/in/niharika-niranjan-19778a290/)
 
----
 
+**Abhijna Laxmi**  
+VLSI · Frontend · Product and Design
+
+* GitHub: [@Abhijna Laxmi](https://github.com/HanAbhi)
+* LinkedIn: [Abhijna Laxmi](www.linkedin.com/in/abhijna-laxmi-659143298)
+
+---
 # Project Documentation
 
 The MVP was designed around a structured product → technical design → implementation workflow.
